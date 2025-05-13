@@ -18,6 +18,7 @@ namespace DersSecimSistemi
         private string fullName;
         private int departmentID;
         private int classYear;
+        private string curriculumName;
 
         public MainForm(int studentID, string loginID, string fullName, int departmentID, int classYear)
         {
@@ -32,9 +33,11 @@ namespace DersSecimSistemi
 
         private void MainForm_Load(object sender, EventArgs e)
         {
+            tabControl.SelectedIndex = 0;
             labelStudentInfo.Text = $"{loginID} - {fullName}";
             GetCurriculum();
             CheckCourseSelectionStatus();
+            labelInfo.Text = $"{fullName}\n{loginID}\n{GetDepartmentName(departmentID)}/{classYear}\n{curriculumName}";
         }
 
         private void GetCurriculum()
@@ -55,15 +58,8 @@ namespace DersSecimSistemi
                     command.Parameters.AddWithValue("@DepartmentID", departmentID);
                     command.Parameters.AddWithValue("@ClassYear", classYear);
 
-                    var curriculumName = command.ExecuteScalar();
-                    if (curriculumName != null)
-                    {
-                        labelCurriculum.Text = $"Müfredat: {curriculumName.ToString()}";
-                    }
-                    else
-                    {
-                        labelCurriculum.Text = "Müfredat bulunamadı.";
-                    }
+                    var curriculumNameFirst = command.ExecuteScalar();
+                    curriculumName = curriculumNameFirst.ToString();
                 }
                 catch (Exception ex)
                 {
@@ -131,24 +127,67 @@ namespace DersSecimSistemi
             if (curriculumCourseCount == 0)
             {
                 labelWarning.Text = "Müfredatın boş gözüküyor.";
-                panel2.BackColor = Color.Gray;
+                panelWarning.BackColor = Color.Gray;
             }
             else if (selectionCount == curriculumCourseCount)
             {
                 labelWarning.Text = "Ders kayıtları tamamlandı.";
-                panel2.BackColor = Color.Green;
+                panelWarning.BackColor = Color.Green;
             }
             else if (selectionCount < curriculumCourseCount)
             {
                 int difference = curriculumCourseCount - selectionCount;
                 labelWarning.Text = $"Seçilmesi gereken {difference} dersiniz bulunmaktadır.";
-                panel2.BackColor = Color.Red;
+                panelWarning.BackColor = Color.Red;
             }
             else
             {
                 labelWarning.Text = "Fazla dersiniz bulunmaktadır.";
-                panel2.BackColor = Color.Red;
+                panelWarning.BackColor = Color.Red;
             }
+        }
+
+        private void btnGoToCourseSelection_Click(object sender, EventArgs e)
+        {
+            // Ders kayıt sayfasına geçiş
+            tabControl.SelectedIndex = 1; // İkinci sekme (Ders Kayıt Sayfası)
+        }
+
+        private void btnGoToHome_Click(object sender, EventArgs e)
+        {
+            // Ana sayfaya geçiş
+            tabControl.SelectedIndex = 0; // İlk sekme (Ana Sayfa)
+        }
+
+        private string GetDepartmentName(int departmentID)
+        {
+            string departmentName = string.Empty;
+            string connectionString = @"Server=(localdb)\MSSQLLocalDB;Database=DersSecimSistemiDB;Trusted_Connection=True;";
+
+            string query = "SELECT DepartmentName FROM Departments WHERE DepartmentID = @DepartmentID";
+
+            using (SqlConnection connection = new SqlConnection(connectionString))
+            {
+                try
+                {
+                    connection.Open();
+                    SqlCommand command = new SqlCommand(query, connection);
+                    command.Parameters.AddWithValue("@DepartmentID", departmentID); // Parametreyi ekliyoruz
+
+                    // Sonuç dönerse
+                    var result = command.ExecuteScalar();
+                    if (result != null)
+                    {
+                        departmentName = result.ToString(); // Department adı burada alınır
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Hata: " + ex.Message);
+                }
+            }
+
+            return departmentName;
         }
     }
 }

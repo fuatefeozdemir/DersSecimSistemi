@@ -1,19 +1,15 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Data.SqlClient;
-using System.Drawing;
-using System.Linq;
 using System.Media;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace DersSecimSistemi
 {
     public partial class LoginForm : Form
     {
+        public string LoginID { get; private set; }
+        public string FullName { get; private set; }
+
         public LoginForm()
         {
             InitializeComponent();
@@ -40,9 +36,18 @@ namespace DersSecimSistemi
 
                     if (result == 1)
                     {
-                        MainForm mainForm = new MainForm();
-                        mainForm.Show();
-                        this.Hide();
+                        // Kullanıcı adı ve şifresi doğru
+                        string getUserQuery = "SELECT FullName FROM Students WHERE LoginID = @LoginID";
+                        using (SqlCommand getUserCommand = new SqlCommand(getUserQuery, connection))
+                        {
+                            getUserCommand.Parameters.AddWithValue("@LoginID", loginID);
+                            FullName = (string)getUserCommand.ExecuteScalar();
+                            LoginID = loginID; // LoginID'yi de set et
+                        }
+
+                        // Başarılı giriş yapıldı, dialog result'ı OK yap
+                        this.DialogResult = DialogResult.OK;
+                        this.Close(); // LoginForm kapanır
                     }
                     else
                     {
@@ -55,6 +60,11 @@ namespace DersSecimSistemi
                     MessageBox.Show("Hata: " + ex.Message);
                 }
             }
+        }
+
+        private void chkShowPassword_CheckedChanged(object sender, EventArgs e)
+        {
+            txtPassword.UseSystemPasswordChar = !chkShowPassword.Checked;
         }
     }
 }

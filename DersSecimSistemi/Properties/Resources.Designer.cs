@@ -73,16 +73,6 @@ namespace DersSecimSistemi.Properties {
         /// <summary>
         ///   System.Drawing.Bitmap türünde yerelleştirilmiş bir kaynak arar.
         /// </summary>
-        internal static System.Drawing.Bitmap icons8_login_50 {
-            get {
-                object obj = ResourceManager.GetObject("icons8-login-50", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   System.Drawing.Bitmap türünde yerelleştirilmiş bir kaynak arar.
-        /// </summary>
         internal static System.Drawing.Bitmap icons8_login_50__1_ {
             get {
                 object obj = ResourceManager.GetObject("icons8-login-50 (1)", resourceCulture);

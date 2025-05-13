@@ -6,20 +6,22 @@ using System.Windows.Forms;
 
 namespace DersSecimSistemi
 {
-    static void Main()
+    internal static class Program
     {
-        Application.EnableVisualStyles();
-        Application.SetCompatibleTextRenderingDefault(false);
-
-        using (LoginForm loginForm = new LoginForm())
+        static void Main()
         {
-            if (loginForm.ShowDialog() == DialogResult.OK)
+            Application.EnableVisualStyles();
+            Application.SetCompatibleTextRenderingDefault(false);
+
+            using (LoginForm loginForm = new LoginForm())
             {
-                // Giriş başarılıysa MainForm'u başlat
-                Application.Run(new MainForm(loginForm.LoginID, loginForm.FullName));
+                if (loginForm.ShowDialog() == DialogResult.OK)
+                {
+                    // Giriş başarılıysa MainForm'u başlat
+                    Application.Run(new MainForm(loginForm.StudentID, loginForm.LoginID, loginForm.FullName, loginForm.DepartmentID, loginForm.ClassYear));
+                }
+                // Giriş başarısızsa veya iptal edilirse, hiçbir şey çalışmaz ve uygulama kapanır
             }
-            // Giriş başarısızsa veya iptal edilirse, hiçbir şey çalışmaz ve uygulama kapanır
         }
     }
-
 }

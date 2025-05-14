@@ -19,6 +19,7 @@ namespace DersSecimSistemi
         private int departmentID;
         private int classYear;
         private string curriculumName;
+        private int curriculumID;
 
         public MainForm(int studentID, string loginID, string fullName, int departmentID, int classYear)
         {
@@ -37,6 +38,7 @@ namespace DersSecimSistemi
             labelStudentInfo.Text = $"{loginID} - {fullName}";
             GetCurriculum();
             CheckCourseSelectionStatus();
+            LoadCourses();
             labelInfo.Text = $"{fullName}\n{loginID}\n{GetDepartmentName(departmentID)}/{classYear}\n{curriculumName}";
         }
 
@@ -44,10 +46,9 @@ namespace DersSecimSistemi
         {
             string connectionString = @"Server=(localdb)\MSSQLLocalDB;Database=DersSecimSistemiDB;Trusted_Connection=True;";
             string query = @"
-            SELECT c.CurriculumName
-            FROM [dbo].[Curricula] c
-            JOIN [dbo].[Departments] d ON c.DepartmentID = d.DepartmentID
-            WHERE c.DepartmentID = @DepartmentID AND c.ClassYear = @ClassYear";
+    SELECT CurriculumID, CurriculumName
+    FROM Curricula 
+    WHERE DepartmentID = @DepartmentID AND ClassYear = @ClassYear";
 
             using (SqlConnection connection = new SqlConnection(connectionString))
             {
@@ -58,8 +59,12 @@ namespace DersSecimSistemi
                     command.Parameters.AddWithValue("@DepartmentID", departmentID);
                     command.Parameters.AddWithValue("@ClassYear", classYear);
 
-                    var curriculumNameFirst = command.ExecuteScalar();
-                    curriculumName = curriculumNameFirst.ToString();
+                    SqlDataReader reader = command.ExecuteReader();
+                    if (reader.Read())
+                    {
+                        curriculumID = Convert.ToInt32(reader["CurriculumID"]);
+                        curriculumName = reader["CurriculumName"].ToString();
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -67,6 +72,7 @@ namespace DersSecimSistemi
                 }
             }
         }
+
 
         private void CheckCourseSelectionStatus()
         {
@@ -132,18 +138,20 @@ namespace DersSecimSistemi
             else if (selectionCount == curriculumCourseCount)
             {
                 labelWarning.Text = "Ders kayıtları tamamlandı.";
-                panelWarning.BackColor = Color.Green;
+                panelWarning.BackColor = ColorTranslator.FromHtml("#28A745");
             }
             else if (selectionCount < curriculumCourseCount)
             {
                 int difference = curriculumCourseCount - selectionCount;
                 labelWarning.Text = $"Seçilmesi gereken {difference} dersiniz bulunmaktadır.";
-                panelWarning.BackColor = Color.Red;
+                panelWarning.BackColor = ColorTranslator.FromHtml("#F8D7DA");
+                labelWarning.ForeColor = Color.Black;
             }
             else
             {
                 labelWarning.Text = "Fazla dersiniz bulunmaktadır.";
-                panelWarning.BackColor = Color.Red;
+                panelWarning.BackColor = ColorTranslator.FromHtml("#F8D7DA");
+                labelWarning.ForeColor = Color.Black;
             }
         }
 
@@ -189,5 +197,107 @@ namespace DersSecimSistemi
 
             return departmentName;
         }
+        private void LoadCourses()
+        {
+            string connectionString = @"Server=(localdb)\MSSQLLocalDB;Database=DersSecimSistemiDB;Trusted_Connection=True;";
+            string query = @"
+        SELECT CourseID, CourseName 
+        FROM Courses
+        WHERE CurriculumID = @CurriculumID"; // öğrencinin müfredatına göre
+
+            using (SqlConnection connection = new SqlConnection(connectionString))
+            {
+                SqlCommand command = new SqlCommand(query, connection);
+                command.Parameters.AddWithValue("@CurriculumID", curriculumID);
+                connection.Open();
+                SqlDataReader reader = command.ExecuteReader();
+
+                while (reader.Read())
+                {
+                    int courseID = reader.GetInt32(0);
+                    string courseName = reader.GetString(1);
+
+                    Button courseButton = new Button();
+                    courseButton.Text = courseName;
+                    courseButton.Tag = courseID; // butona courseID'yi sakla
+                    courseButton.Width = 200;
+                    courseButton.Height = 40;
+                    courseButton.Margin = new Padding(5);
+                    courseButton.Click += CourseButton_Click;
+
+                    flowLayoutPanelCourses.Controls.Add(courseButton);
+                }
+            }
+        }
+        private void CourseButton_Click(object sender, EventArgs e)
+        {
+            Button clickedButton = sender as Button;
+            int courseID = (int)clickedButton.Tag;
+
+            // Şubeleri çek ve seçtir
+
+            List<(int sectionID, string name)> sections = GetSectionsForCourse(courseID);
+
+            if (sections.Count == 0)
+            {
+                MessageBox.Show("Bu derse ait şube bulunamadı.");
+                return;
+            }
+
+            // Basit seçim için ComboBox olan ufak bir form gösterebilirsin
+            SectionSelectionForm form = new SectionSelectionForm(sections); // custom form
+            if (form.ShowDialog() == DialogResult.OK)
+            {
+                int selectedSectionID = form.SelectedSectionID;
+                SaveCourseSelection(studentID, courseID, selectedSectionID);
+                MessageBox.Show("Ders seçimi başarıyla kaydedildi.");
+            }
+        }
+        private List<(int sectionID, string name)> GetSectionsForCourse(int courseID)
+        {
+            List<(int sectionID, string name)> sections = new List<(int sectionID, string name)>();
+
+            string connectionString = @"Server=(localdb)\MSSQLLocalDB;Database=DersSecimSistemiDB;Trusted_Connection=True;";
+            string query = "SELECT SectionID, InstructorName FROM CourseSections WHERE CourseID = @CourseID";
+
+            using (SqlConnection connection = new SqlConnection(connectionString))
+            {
+                SqlCommand command = new SqlCommand(query, connection);
+                command.Parameters.AddWithValue("@CourseID", courseID);
+                connection.Open();
+                SqlDataReader reader = command.ExecuteReader();
+
+                while (reader.Read())
+                {
+                    int sectionID = reader.GetInt32(0);
+                    string name = reader.GetString(1);
+                    sections.Add((sectionID, name));
+                }
+            }
+
+            return sections;
+        }
+
+
+        private void SaveCourseSelection(int studentID, int courseID, int sectionID)
+        {
+            string connectionString = @"Server=(localdb)\MSSQLLocalDB;Database=DersSecimSistemiDB;Trusted_Connection=True;";
+            string query = @"
+        INSERT INTO StudentCourseSelections (StudentID, CourseID, SectionID)
+        VALUES (@StudentID, @CourseID, @SectionID)";
+
+            using (SqlConnection connection = new SqlConnection(connectionString))
+            {
+                SqlCommand command = new SqlCommand(query, connection);
+                command.Parameters.AddWithValue("@StudentID", studentID);
+                command.Parameters.AddWithValue("@CourseID", courseID);
+                command.Parameters.AddWithValue("@SectionID", sectionID);
+                connection.Open();
+                command.ExecuteNonQuery();
+            }
+        }
+
+
+
     }
 }

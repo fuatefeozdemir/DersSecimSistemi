@@ -41,10 +41,14 @@
             this.tabControl = new System.Windows.Forms.TabControl();
             this.pageHome = new System.Windows.Forms.TabPage();
             this.pageCourseSelection = new System.Windows.Forms.TabPage();
+            this.panel2 = new System.Windows.Forms.Panel();
+            this.label3 = new System.Windows.Forms.Label();
+            this.flowLayoutPanelCourses = new System.Windows.Forms.FlowLayoutPanel();
+            this.labelInfo = new System.Windows.Forms.Label();
+            this.label2 = new System.Windows.Forms.Label();
             this.panel1 = new System.Windows.Forms.Panel();
             this.label1 = new System.Windows.Forms.Label();
-            this.label2 = new System.Windows.Forms.Label();
-            this.labelInfo = new System.Windows.Forms.Label();
+            this.fileSystemWatcher1 = new System.IO.FileSystemWatcher();
             this.panelHeader.SuspendLayout();
             this.panelSide.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
@@ -52,7 +56,9 @@
             this.tabControl.SuspendLayout();
             this.pageHome.SuspendLayout();
             this.pageCourseSelection.SuspendLayout();
+            this.panel2.SuspendLayout();
             this.panel1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.fileSystemWatcher1)).BeginInit();
             this.SuspendLayout();
             // 
             // panelHeader
@@ -139,20 +145,20 @@
             // labelWarning
             // 
             this.labelWarning.AutoSize = true;
-            this.labelWarning.Font = new System.Drawing.Font("Arial", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(162)));
+            this.labelWarning.Font = new System.Drawing.Font("Arial", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(162)));
             this.labelWarning.ForeColor = System.Drawing.Color.White;
-            this.labelWarning.Location = new System.Drawing.Point(48, 29);
+            this.labelWarning.Location = new System.Drawing.Point(16, 9);
             this.labelWarning.Name = "labelWarning";
-            this.labelWarning.Size = new System.Drawing.Size(0, 22);
+            this.labelWarning.Size = new System.Drawing.Size(0, 18);
             this.labelWarning.TabIndex = 2;
             // 
             // panelWarning
             // 
             this.panelWarning.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(167)))), ((int)(((byte)(69)))));
             this.panelWarning.Controls.Add(this.labelWarning);
-            this.panelWarning.Location = new System.Drawing.Point(159, 94);
+            this.panelWarning.Location = new System.Drawing.Point(0, 3);
             this.panelWarning.Name = "panelWarning";
-            this.panelWarning.Size = new System.Drawing.Size(677, 72);
+            this.panelWarning.Size = new System.Drawing.Size(1080, 39);
             this.panelWarning.TabIndex = 3;
             // 
             // tabControl
@@ -181,6 +187,8 @@
             // pageCourseSelection
             // 
             this.pageCourseSelection.BackColor = System.Drawing.Color.White;
+            this.pageCourseSelection.Controls.Add(this.panel2);
+            this.pageCourseSelection.Controls.Add(this.flowLayoutPanelCourses);
             this.pageCourseSelection.Controls.Add(this.labelInfo);
             this.pageCourseSelection.Controls.Add(this.label2);
             this.pageCourseSelection.Controls.Add(this.panel1);
@@ -191,12 +199,59 @@
             this.pageCourseSelection.TabIndex = 1;
             this.pageCourseSelection.Text = "tabPage4";
             // 
+            // panel2
+            // 
+            this.panel2.BackColor = System.Drawing.Color.WhiteSmoke;
+            this.panel2.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.panel2.Controls.Add(this.label3);
+            this.panel2.Location = new System.Drawing.Point(3, 99);
+            this.panel2.Name = "panel2";
+            this.panel2.Size = new System.Drawing.Size(1070, 28);
+            this.panel2.TabIndex = 8;
+            // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Font = new System.Drawing.Font("Arial", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(162)));
+            this.label3.Location = new System.Drawing.Point(3, 5);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(162, 16);
+            this.label3.TabIndex = 6;
+            this.label3.Text = "Seçilmesi Gereken Dersler";
+            // 
+            // flowLayoutPanelCourses
+            // 
+            this.flowLayoutPanelCourses.Location = new System.Drawing.Point(10, 136);
+            this.flowLayoutPanelCourses.Name = "flowLayoutPanelCourses";
+            this.flowLayoutPanelCourses.Size = new System.Drawing.Size(206, 377);
+            this.flowLayoutPanelCourses.TabIndex = 6;
+            // 
+            // labelInfo
+            // 
+            this.labelInfo.AutoSize = true;
+            this.labelInfo.Font = new System.Drawing.Font("Arial", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(162)));
+            this.labelInfo.Location = new System.Drawing.Point(119, 32);
+            this.labelInfo.Name = "labelInfo";
+            this.labelInfo.Size = new System.Drawing.Size(54, 16);
+            this.labelInfo.TabIndex = 7;
+            this.labelInfo.Text = "labelInfo";
+            // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Font = new System.Drawing.Font("Arial", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(162)));
+            this.label2.Location = new System.Drawing.Point(7, 32);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(73, 64);
+            this.label2.TabIndex = 6;
+            this.label2.Text = "Adı Soyadı\r\nÖğrenci No\r\nBölüm/Sınıf\r\nMüfredat";
+            // 
             // panel1
             // 
             this.panel1.BackColor = System.Drawing.Color.WhiteSmoke;
             this.panel1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.panel1.Controls.Add(this.label1);
-            this.panel1.Location = new System.Drawing.Point(3, 14);
+            this.panel1.Location = new System.Drawing.Point(3, 1);
             this.panel1.Name = "panel1";
             this.panel1.Size = new System.Drawing.Size(1070, 28);
             this.panel1.TabIndex = 5;
@@ -211,25 +266,10 @@
             this.label1.TabIndex = 6;
             this.label1.Text = "Öğrenci Bilgileri";
             // 
-            // label2
+            // fileSystemWatcher1
             // 
-            this.label2.AutoSize = true;
-            this.label2.Font = new System.Drawing.Font("Arial", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(162)));
-            this.label2.Location = new System.Drawing.Point(6, 48);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(73, 64);
-            this.label2.TabIndex = 6;
-            this.label2.Text = "Adı Soyadı\r\nÖğrenci No\r\nBölüm/Sınıf\r\nMüfredat";
-            // 
-            // labelInfo
-            // 
-            this.labelInfo.AutoSize = true;
-            this.labelInfo.Font = new System.Drawing.Font("Arial", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(162)));
-            this.labelInfo.Location = new System.Drawing.Point(136, 48);
-            this.labelInfo.Name = "labelInfo";
-            this.labelInfo.Size = new System.Drawing.Size(54, 16);
-            this.labelInfo.TabIndex = 7;
-            this.labelInfo.Text = "labelInfo";
+            this.fileSystemWatcher1.EnableRaisingEvents = true;
+            this.fileSystemWatcher1.SynchronizingObject = this;
             // 
             // MainForm
             // 
@@ -258,8 +298,11 @@
             this.pageHome.ResumeLayout(false);
             this.pageCourseSelection.ResumeLayout(false);
             this.pageCourseSelection.PerformLayout();
+            this.panel2.ResumeLayout(false);
+            this.panel2.PerformLayout();
             this.panel1.ResumeLayout(false);
             this.panel1.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.fileSystemWatcher1)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -282,5 +325,9 @@
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label labelInfo;
         private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.FlowLayoutPanel flowLayoutPanelCourses;
+        private System.IO.FileSystemWatcher fileSystemWatcher1;
+        private System.Windows.Forms.Panel panel2;
+        private System.Windows.Forms.Label label3;
     }
 }

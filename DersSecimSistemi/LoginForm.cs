@@ -7,11 +7,11 @@ namespace DersSecimSistemi
 {
     public partial class LoginForm : Form
     {
-        public string LoginID { get; private set; }
-        public int StudentID { get; private set; }
-        public string FullName { get; private set; }
-        public int DepartmentID { get; private set; } // Yeni eklendi
-        public int ClassYear { get; private set; }   // Yeni eklendi
+        public string LoginID {get; private set;}
+        public int StudentID {get; private set;}
+        public string FullName {get; private set;}
+        public int DepartmentID {get; private set;}
+        public int ClassYear {get; private set;}
 
         public LoginForm()
         {
@@ -40,10 +40,10 @@ namespace DersSecimSistemi
                         if (reader.Read())
                         {
                             // Giriş başarılı
-                            StudentID = reader.GetInt32(0); // StudentID
-                            FullName = reader.GetString(1); // FullName
-                            DepartmentID = reader.GetInt32(2); // DepartmentID
-                            ClassYear = reader.GetInt32(3); // ClassYear
+                            StudentID = reader.GetInt32(0);
+                            FullName = reader.GetString(1);
+                            DepartmentID = reader.GetInt32(2);
+                            ClassYear = reader.GetInt32(3);
                             LoginID = loginID;
 
                             this.DialogResult = DialogResult.OK;

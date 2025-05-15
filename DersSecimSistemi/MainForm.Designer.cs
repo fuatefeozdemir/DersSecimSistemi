@@ -92,7 +92,7 @@
             this.panelSide.Dock = System.Windows.Forms.DockStyle.Left;
             this.panelSide.Location = new System.Drawing.Point(0, 0);
             this.panelSide.Name = "panelSide";
-            this.panelSide.Size = new System.Drawing.Size(180, 681);
+            this.panelSide.Size = new System.Drawing.Size(180, 761);
             this.panelSide.TabIndex = 1;
             // 
             // btnGoToCourseSelection
@@ -169,7 +169,7 @@
             this.tabControl.Location = new System.Drawing.Point(180, 37);
             this.tabControl.Name = "tabControl";
             this.tabControl.SelectedIndex = 0;
-            this.tabControl.Size = new System.Drawing.Size(1084, 644);
+            this.tabControl.Size = new System.Drawing.Size(1084, 724);
             this.tabControl.SizeMode = System.Windows.Forms.TabSizeMode.Fixed;
             this.tabControl.TabIndex = 5;
             // 
@@ -180,7 +180,7 @@
             this.pageHome.Location = new System.Drawing.Point(4, 5);
             this.pageHome.Name = "pageHome";
             this.pageHome.Padding = new System.Windows.Forms.Padding(3);
-            this.pageHome.Size = new System.Drawing.Size(1076, 635);
+            this.pageHome.Size = new System.Drawing.Size(1076, 715);
             this.pageHome.TabIndex = 0;
             this.pageHome.Text = "tabPage3";
             // 
@@ -204,7 +204,7 @@
             this.panel2.BackColor = System.Drawing.Color.WhiteSmoke;
             this.panel2.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.panel2.Controls.Add(this.label3);
-            this.panel2.Location = new System.Drawing.Point(3, 99);
+            this.panel2.Location = new System.Drawing.Point(3, 83);
             this.panel2.Name = "panel2";
             this.panel2.Size = new System.Drawing.Size(1070, 28);
             this.panel2.TabIndex = 8;
@@ -221,9 +221,9 @@
             // 
             // flowLayoutPanelCourses
             // 
-            this.flowLayoutPanelCourses.Location = new System.Drawing.Point(10, 136);
+            this.flowLayoutPanelCourses.Location = new System.Drawing.Point(10, 117);
             this.flowLayoutPanelCourses.Name = "flowLayoutPanelCourses";
-            this.flowLayoutPanelCourses.Size = new System.Drawing.Size(206, 377);
+            this.flowLayoutPanelCourses.Size = new System.Drawing.Size(356, 377);
             this.flowLayoutPanelCourses.TabIndex = 6;
             // 
             // labelInfo
@@ -242,9 +242,9 @@
             this.label2.Font = new System.Drawing.Font("Arial", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(162)));
             this.label2.Location = new System.Drawing.Point(7, 32);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(73, 64);
+            this.label2.Size = new System.Drawing.Size(72, 48);
             this.label2.TabIndex = 6;
-            this.label2.Text = "Adı Soyadı\r\nÖğrenci No\r\nBölüm/Sınıf\r\nMüfredat";
+            this.label2.Text = "Adı Soyadı\r\nÖğrenci No\r\nMüfredat";
             // 
             // panel1
             // 
@@ -276,7 +276,7 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.White;
-            this.ClientSize = new System.Drawing.Size(1264, 681);
+            this.ClientSize = new System.Drawing.Size(1264, 761);
             this.Controls.Add(this.tabControl);
             this.Controls.Add(this.panelSide);
             this.Controls.Add(this.panelHeader);

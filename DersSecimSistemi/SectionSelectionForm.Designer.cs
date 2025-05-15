@@ -36,7 +36,7 @@
             // 
             // buttonOK
             // 
-            this.buttonOK.Location = new System.Drawing.Point(292, 225);
+            this.buttonOK.Location = new System.Drawing.Point(328, 218);
             this.buttonOK.Name = "buttonOK";
             this.buttonOK.Size = new System.Drawing.Size(75, 23);
             this.buttonOK.TabIndex = 1;
@@ -47,7 +47,7 @@
             // buttonCancel
             // 
             this.buttonCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.buttonCancel.Location = new System.Drawing.Point(201, 225);
+            this.buttonCancel.Location = new System.Drawing.Point(229, 218);
             this.buttonCancel.Name = "buttonCancel";
             this.buttonCancel.Size = new System.Drawing.Size(75, 23);
             this.buttonCancel.TabIndex = 2;
@@ -57,9 +57,9 @@
             // 
             // flowLayoutPanelSections
             // 
-            this.flowLayoutPanelSections.Location = new System.Drawing.Point(178, 28);
+            this.flowLayoutPanelSections.Location = new System.Drawing.Point(12, 5);
             this.flowLayoutPanelSections.Name = "flowLayoutPanelSections";
-            this.flowLayoutPanelSections.Size = new System.Drawing.Size(51, 191);
+            this.flowLayoutPanelSections.Size = new System.Drawing.Size(610, 207);
             this.flowLayoutPanelSections.TabIndex = 3;
             // 
             // SectionSelectionForm
@@ -69,7 +69,7 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.White;
             this.CancelButton = this.buttonCancel;
-            this.ClientSize = new System.Drawing.Size(595, 373);
+            this.ClientSize = new System.Drawing.Size(634, 243);
             this.Controls.Add(this.flowLayoutPanelSections);
             this.Controls.Add(this.buttonCancel);
             this.Controls.Add(this.buttonOK);

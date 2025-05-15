@@ -39,7 +39,7 @@ namespace DersSecimSistemi
             GetCurriculum();
             CheckCourseSelectionStatus();
             LoadCourses();
-            labelInfo.Text = $"{fullName}\n{loginID}\n{GetDepartmentName(departmentID)}/{classYear}\n{curriculumName}";
+            labelInfo.Text = $"{fullName}\n{loginID}\n{curriculumName}";
         }
 
         private void GetCurriculum()
@@ -166,44 +166,48 @@ namespace DersSecimSistemi
             // Ana sayfaya geçiş
             tabControl.SelectedIndex = 0; // İlk sekme (Ana Sayfa)
         }
-
-        private string GetDepartmentName(int departmentID)
-        {
-            string departmentName = string.Empty;
-            string connectionString = @"Server=(localdb)\MSSQLLocalDB;Database=DersSecimSistemiDB;Trusted_Connection=True;";
-
-            string query = "SELECT DepartmentName FROM Departments WHERE DepartmentID = @DepartmentID";
-
-            using (SqlConnection connection = new SqlConnection(connectionString))
-            {
-                try
-                {
-                    connection.Open();
-                    SqlCommand command = new SqlCommand(query, connection);
-                    command.Parameters.AddWithValue("@DepartmentID", departmentID); // Parametreyi ekliyoruz
-
-                    // Sonuç dönerse
-                    var result = command.ExecuteScalar();
-                    if (result != null)
-                    {
-                        departmentName = result.ToString(); // Department adı burada alınır
-                    }
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show("Hata: " + ex.Message);
-                }
-            }
-
-            return departmentName;
-        }
         private void LoadCourses()
         {
+            flowLayoutPanelCourses.Controls.Clear(); // Önceki kontrolleri temizle
+
+            // 1. Header Paneli oluştur
+            Panel headerPanel = new Panel();
+            headerPanel.Width = 350;
+            headerPanel.Height = 30;
+            headerPanel.BackColor = Color.LightGray;
+
+            // Ekle başlığı
+            Label headerAdd = new Label();
+            headerAdd.Text = "Ekle";
+            headerAdd.Width = 40;
+            headerAdd.Location = new Point(5, 6);
+            headerAdd.Font = new Font("Segoe UI", 8, FontStyle.Bold);
+
+            // Ders Kodu başlığı
+            Label headerCode = new Label();
+            headerCode.Text = "Ders Kodu";
+            headerCode.Width = 80;
+            headerCode.Location = new Point(50, 6);
+            headerCode.Font = new Font("Segoe UI", 8, FontStyle.Bold);
+
+            // Ders Adı başlığı
+            Label headerName = new Label();
+            headerName.Text = "Ders Adı";
+            headerName.Width = 200;
+            headerName.Location = new Point(140, 6);
+            headerName.Font = new Font("Segoe UI", 8, FontStyle.Bold);
+
+            // Header ekle
+            headerPanel.Controls.Add(headerAdd);
+            headerPanel.Controls.Add(headerCode);
+            headerPanel.Controls.Add(headerName);
+            flowLayoutPanelCourses.Controls.Add(headerPanel);
+
             string connectionString = @"Server=(localdb)\MSSQLLocalDB;Database=DersSecimSistemiDB;Trusted_Connection=True;";
             string query = @"
-        SELECT CourseID, CourseName 
-        FROM Courses
-        WHERE CurriculumID = @CurriculumID"; // öğrencinin müfredatına göre
+SELECT CourseID, CourseName, CourseCode
+FROM Courses
+WHERE CurriculumID = @CurriculumID";
 
             using (SqlConnection connection = new SqlConnection(connectionString))
             {
@@ -216,27 +220,59 @@ namespace DersSecimSistemi
                 {
                     int courseID = reader.GetInt32(0);
                     string courseName = reader.GetString(1);
+                    string courseCode = reader.GetString(2);
 
-                    Button courseButton = new Button();
-                    courseButton.Text = courseName;
-                    courseButton.Tag = courseID; // butona courseID'yi sakla
-                    courseButton.Width = 200;
-                    courseButton.Height = 40;
-                    courseButton.Margin = new Padding(5);
-                    courseButton.Click += CourseButton_Click;
+                    // Panel satırı
+                    Panel coursePanel = new Panel();
+                    coursePanel.Width = 350;
+                    coursePanel.Height = 30;
+                    coursePanel.Margin = new Padding(2);
+                    coursePanel.BackColor = Color.Transparent;
 
-                    flowLayoutPanelCourses.Controls.Add(courseButton);
+                    // '+' butonu
+                    Button addButton = new Button();
+                    addButton.Text = "+";
+                    addButton.Tag = courseID;
+                    addButton.Width = 24;
+                    addButton.Height = 24;
+                    addButton.Location = new Point(5, 3); // Hafif içe kaydırılmış, ortalanmış
+                    addButton.Click += CourseButton_Click;
+                    addButton.Tag = new Tuple<int, string>(courseID, courseCode);
+
+                    // Ders kodu etiketi
+                    Label codeLabel = new Label();
+                    codeLabel.Text = courseCode;
+                    codeLabel.AutoSize = true;
+                    codeLabel.Location = new Point(addButton.Right + 10, 6); // butonun sağına hizalanmış
+                    codeLabel.Font = new Font("Segoe UI", 8, FontStyle.Regular);
+
+                    // Ders adı etiketi
+                    Label nameLabel = new Label();
+                    nameLabel.Text = courseName;
+                    nameLabel.AutoSize = true;
+                    nameLabel.Location = new Point(codeLabel.Right + 20, 6); // koddan sonra boşluklu
+                    nameLabel.Font = new Font("Segoe UI", 8, FontStyle.Regular);
+
+                    // Ekle
+                    coursePanel.Controls.Add(addButton);
+                    coursePanel.Controls.Add(codeLabel);
+                    coursePanel.Controls.Add(nameLabel);
+
+                    flowLayoutPanelCourses.Controls.Add(coursePanel);
                 }
             }
         }
+
+
+        // Güncellenmiş CourseButton_Click metodu — artık SectionSelectionForm'a yeni formatta veri gönderiyor
         private void CourseButton_Click(object sender, EventArgs e)
         {
             Button clickedButton = sender as Button;
-            int courseID = (int)clickedButton.Tag;
+            var tag = (Tuple<int, string>)clickedButton.Tag;
+            int courseID = tag.Item1;
+            string courseCode = tag.Item2;
 
-            // Şubeleri çek ve seçtir
-
-            List<(int sectionID, string name)> sections = GetSectionsForCourse(courseID);
+            var sections = GetSectionsForCourse(courseID, courseCode);
 
             if (sections.Count == 0)
             {
@@ -244,8 +280,7 @@ namespace DersSecimSistemi
                 return;
             }
 
-            // Basit seçim için ComboBox olan ufak bir form gösterebilirsin
-            SectionSelectionForm form = new SectionSelectionForm(sections); // custom form
+            SectionSelectionForm form = new SectionSelectionForm(sections);
             if (form.ShowDialog() == DialogResult.OK)
             {
                 int selectedSectionID = form.SelectedSectionID;
@@ -253,12 +288,17 @@ namespace DersSecimSistemi
                 MessageBox.Show("Ders seçimi başarıyla kaydedildi.");
             }
         }
-        private List<(int sectionID, string name)> GetSectionsForCourse(int courseID)
+
+
+        private List<(string CourseCode, int SectionID, string InstructorName,int Quota, string Classroom, TimeSpan StartTime, TimeSpan EndTime, string Day)>
+    GetSectionsForCourse(int courseID, string courseCode)
         {
-            List<(int sectionID, string name)> sections = new List<(int sectionID, string name)>();
+            var sections = new List<(string, int, string, int, string, TimeSpan, TimeSpan, string)>();
 
             string connectionString = @"Server=(localdb)\MSSQLLocalDB;Database=DersSecimSistemiDB;Trusted_Connection=True;";
-            string query = "SELECT SectionID, InstructorName FROM CourseSections WHERE CourseID = @CourseID";
+            string query = @"SELECT SectionID, InstructorName, Quota, Classroom, StartTime, EndTime, Day 
+                     FROM CourseSections 
+                     WHERE CourseID = @CourseID";
 
             using (SqlConnection connection = new SqlConnection(connectionString))
             {
@@ -270,13 +310,22 @@ namespace DersSecimSistemi
                 while (reader.Read())
                 {
                     int sectionID = reader.GetInt32(0);
-                    string name = reader.GetString(1);
-                    sections.Add((sectionID, name));
+                    string instructor = reader.GetString(1);
+                    int quota = reader.GetInt32(2);
+                    string classroom = reader.GetString(3);
+                    TimeSpan startTime = reader.GetTimeSpan(4);
+                    TimeSpan endTime = reader.GetTimeSpan(5);
+                    string day = reader.GetString(6);
+
+                    sections.Add((courseCode, sectionID, instructor, quota, classroom, startTime, endTime, day));
                 }
             }
 
             return sections;
         }
+
+
+
 
 
         private void SaveCourseSelection(int studentID, int courseID, int sectionID)
@@ -296,8 +345,5 @@ namespace DersSecimSistemi
                 command.ExecuteNonQuery();
             }
         }
-
-
-
     }
 }

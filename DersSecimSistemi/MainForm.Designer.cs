@@ -30,8 +30,10 @@
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
             this.panelHeader = new System.Windows.Forms.Panel();
+            this.pictureBox2 = new System.Windows.Forms.PictureBox();
             this.labelStudentInfo = new System.Windows.Forms.Label();
             this.panelSide = new System.Windows.Forms.Panel();
+            this.btnGoToSchedule = new System.Windows.Forms.Button();
             this.btnGoToCourseSelection = new System.Windows.Forms.Button();
             this.btnGoToHome = new System.Windows.Forms.Button();
             this.labelGazi = new System.Windows.Forms.Label();
@@ -41,6 +43,8 @@
             this.tabControl = new System.Windows.Forms.TabControl();
             this.pageHome = new System.Windows.Forms.TabPage();
             this.pageCourseSelection = new System.Windows.Forms.TabPage();
+            this.btnSaveSelections = new System.Windows.Forms.Button();
+            this.flowLayoutPanelSelectedSections = new System.Windows.Forms.FlowLayoutPanel();
             this.panel2 = new System.Windows.Forms.Panel();
             this.label3 = new System.Windows.Forms.Label();
             this.flowLayoutPanelCourses = new System.Windows.Forms.FlowLayoutPanel();
@@ -48,8 +52,13 @@
             this.label2 = new System.Windows.Forms.Label();
             this.panel1 = new System.Windows.Forms.Panel();
             this.label1 = new System.Windows.Forms.Label();
+            this.pageSchedule = new System.Windows.Forms.TabPage();
+            this.dataGridViewSchedule = new System.Windows.Forms.DataGridView();
             this.fileSystemWatcher1 = new System.IO.FileSystemWatcher();
+            this.panelProfile = new System.Windows.Forms.Panel();
+            this.btnLogout = new System.Windows.Forms.Button();
             this.panelHeader.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).BeginInit();
             this.panelSide.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.panelWarning.SuspendLayout();
@@ -58,33 +67,51 @@
             this.pageCourseSelection.SuspendLayout();
             this.panel2.SuspendLayout();
             this.panel1.SuspendLayout();
+            this.pageSchedule.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.dataGridViewSchedule)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.fileSystemWatcher1)).BeginInit();
+            this.panelProfile.SuspendLayout();
             this.SuspendLayout();
             // 
             // panelHeader
             // 
             this.panelHeader.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(18)))), ((int)(((byte)(30)))), ((int)(((byte)(45)))));
+            this.panelHeader.Controls.Add(this.pictureBox2);
             this.panelHeader.Controls.Add(this.labelStudentInfo);
             this.panelHeader.Location = new System.Drawing.Point(180, 0);
             this.panelHeader.Name = "panelHeader";
             this.panelHeader.Size = new System.Drawing.Size(1084, 37);
             this.panelHeader.TabIndex = 0;
             // 
+            // pictureBox2
+            // 
+            this.pictureBox2.Image = global::DersSecimSistemi.Properties.Resources.profile_picture;
+            this.pictureBox2.Location = new System.Drawing.Point(796, 3);
+            this.pictureBox2.Name = "pictureBox2";
+            this.pictureBox2.Size = new System.Drawing.Size(32, 32);
+            this.pictureBox2.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
+            this.pictureBox2.TabIndex = 0;
+            this.pictureBox2.TabStop = false;
+            this.pictureBox2.Click += new System.EventHandler(this.pictureBox2_Click);
+            // 
             // labelStudentInfo
             // 
+            this.labelStudentInfo.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.labelStudentInfo.AutoSize = true;
-            this.labelStudentInfo.BackColor = System.Drawing.Color.Transparent;
-            this.labelStudentInfo.Font = new System.Drawing.Font("Arial", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(162)));
-            this.labelStudentInfo.ForeColor = System.Drawing.Color.White;
-            this.labelStudentInfo.Location = new System.Drawing.Point(844, 9);
+            this.labelStudentInfo.Font = new System.Drawing.Font("Arial", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(162)));
+            this.labelStudentInfo.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(239)))), ((int)(((byte)(240)))), ((int)(((byte)(241)))));
+            this.labelStudentInfo.Location = new System.Drawing.Point(834, 10);
             this.labelStudentInfo.Name = "labelStudentInfo";
-            this.labelStudentInfo.Size = new System.Drawing.Size(72, 16);
-            this.labelStudentInfo.TabIndex = 1;
-            this.labelStudentInfo.Text = "StudentInfo";
+            this.labelStudentInfo.Size = new System.Drawing.Size(118, 18);
+            this.labelStudentInfo.TabIndex = 7;
+            this.labelStudentInfo.Text = "labelStudentInfo";
+            this.labelStudentInfo.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
             // panelSide
             // 
             this.panelSide.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(18)))), ((int)(((byte)(30)))), ((int)(((byte)(45)))));
+            this.panelSide.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.panelSide.Controls.Add(this.btnGoToSchedule);
             this.panelSide.Controls.Add(this.btnGoToCourseSelection);
             this.panelSide.Controls.Add(this.btnGoToHome);
             this.panelSide.Controls.Add(this.labelGazi);
@@ -94,6 +121,19 @@
             this.panelSide.Name = "panelSide";
             this.panelSide.Size = new System.Drawing.Size(180, 761);
             this.panelSide.TabIndex = 1;
+            // 
+            // btnGoToSchedule
+            // 
+            this.btnGoToSchedule.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnGoToSchedule.Font = new System.Drawing.Font("Arial", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(162)));
+            this.btnGoToSchedule.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(194)))), ((int)(((byte)(199)))), ((int)(((byte)(208)))));
+            this.btnGoToSchedule.Location = new System.Drawing.Point(2, 214);
+            this.btnGoToSchedule.Name = "btnGoToSchedule";
+            this.btnGoToSchedule.Size = new System.Drawing.Size(175, 30);
+            this.btnGoToSchedule.TabIndex = 5;
+            this.btnGoToSchedule.Text = "Ders Programı";
+            this.btnGoToSchedule.UseVisualStyleBackColor = true;
+            this.btnGoToSchedule.Click += new System.EventHandler(this.btnGoToSchedule_Click);
             // 
             // btnGoToCourseSelection
             // 
@@ -165,6 +205,7 @@
             // 
             this.tabControl.Controls.Add(this.pageHome);
             this.tabControl.Controls.Add(this.pageCourseSelection);
+            this.tabControl.Controls.Add(this.pageSchedule);
             this.tabControl.ItemSize = new System.Drawing.Size(0, 1);
             this.tabControl.Location = new System.Drawing.Point(180, 37);
             this.tabControl.Name = "tabControl";
@@ -187,6 +228,8 @@
             // pageCourseSelection
             // 
             this.pageCourseSelection.BackColor = System.Drawing.Color.White;
+            this.pageCourseSelection.Controls.Add(this.btnSaveSelections);
+            this.pageCourseSelection.Controls.Add(this.flowLayoutPanelSelectedSections);
             this.pageCourseSelection.Controls.Add(this.panel2);
             this.pageCourseSelection.Controls.Add(this.flowLayoutPanelCourses);
             this.pageCourseSelection.Controls.Add(this.labelInfo);
@@ -195,9 +238,26 @@
             this.pageCourseSelection.Location = new System.Drawing.Point(4, 5);
             this.pageCourseSelection.Name = "pageCourseSelection";
             this.pageCourseSelection.Padding = new System.Windows.Forms.Padding(3);
-            this.pageCourseSelection.Size = new System.Drawing.Size(1076, 635);
+            this.pageCourseSelection.Size = new System.Drawing.Size(1076, 715);
             this.pageCourseSelection.TabIndex = 1;
             this.pageCourseSelection.Text = "tabPage4";
+            // 
+            // btnSaveSelections
+            // 
+            this.btnSaveSelections.Location = new System.Drawing.Point(872, 500);
+            this.btnSaveSelections.Name = "btnSaveSelections";
+            this.btnSaveSelections.Size = new System.Drawing.Size(75, 23);
+            this.btnSaveSelections.TabIndex = 9;
+            this.btnSaveSelections.Text = "Kesinleştir";
+            this.btnSaveSelections.UseVisualStyleBackColor = true;
+            this.btnSaveSelections.Click += new System.EventHandler(this.btnSaveSelections_Click);
+            // 
+            // flowLayoutPanelSelectedSections
+            // 
+            this.flowLayoutPanelSelectedSections.Location = new System.Drawing.Point(404, 117);
+            this.flowLayoutPanelSelectedSections.Name = "flowLayoutPanelSelectedSections";
+            this.flowLayoutPanelSelectedSections.Size = new System.Drawing.Size(543, 377);
+            this.flowLayoutPanelSelectedSections.TabIndex = 0;
             // 
             // panel2
             // 
@@ -266,10 +326,60 @@
             this.label1.TabIndex = 6;
             this.label1.Text = "Öğrenci Bilgileri";
             // 
+            // pageSchedule
+            // 
+            this.pageSchedule.BackColor = System.Drawing.Color.White;
+            this.pageSchedule.Controls.Add(this.dataGridViewSchedule);
+            this.pageSchedule.Location = new System.Drawing.Point(4, 5);
+            this.pageSchedule.Name = "pageSchedule";
+            this.pageSchedule.Padding = new System.Windows.Forms.Padding(3);
+            this.pageSchedule.Size = new System.Drawing.Size(1076, 715);
+            this.pageSchedule.TabIndex = 2;
+            this.pageSchedule.Text = "pageSchedule";
+            // 
+            // dataGridViewSchedule
+            // 
+            this.dataGridViewSchedule.AllowUserToAddRows = false;
+            this.dataGridViewSchedule.AllowUserToDeleteRows = false;
+            this.dataGridViewSchedule.AllowUserToResizeColumns = false;
+            this.dataGridViewSchedule.AllowUserToResizeRows = false;
+            this.dataGridViewSchedule.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dataGridViewSchedule.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.dataGridViewSchedule.Location = new System.Drawing.Point(3, 3);
+            this.dataGridViewSchedule.Name = "dataGridViewSchedule";
+            this.dataGridViewSchedule.ReadOnly = true;
+            this.dataGridViewSchedule.Size = new System.Drawing.Size(1070, 709);
+            this.dataGridViewSchedule.TabIndex = 6;
+            // 
             // fileSystemWatcher1
             // 
             this.fileSystemWatcher1.EnableRaisingEvents = true;
             this.fileSystemWatcher1.SynchronizingObject = this;
+            // 
+            // panelProfile
+            // 
+            this.panelProfile.BackColor = System.Drawing.Color.White;
+            this.panelProfile.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.panelProfile.Controls.Add(this.btnLogout);
+            this.panelProfile.Location = new System.Drawing.Point(970, 37);
+            this.panelProfile.Name = "panelProfile";
+            this.panelProfile.Size = new System.Drawing.Size(287, 153);
+            this.panelProfile.TabIndex = 7;
+            this.panelProfile.Visible = false;
+            // 
+            // btnLogout
+            // 
+            this.btnLogout.BackColor = System.Drawing.Color.IndianRed;
+            this.btnLogout.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnLogout.Font = new System.Drawing.Font("Arial", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(162)));
+            this.btnLogout.ForeColor = System.Drawing.Color.White;
+            this.btnLogout.Location = new System.Drawing.Point(28, 105);
+            this.btnLogout.Name = "btnLogout";
+            this.btnLogout.Size = new System.Drawing.Size(241, 43);
+            this.btnLogout.TabIndex = 4;
+            this.btnLogout.Text = "Çıkış Yap";
+            this.btnLogout.UseVisualStyleBackColor = false;
+            this.btnLogout.Click += new System.EventHandler(this.btnLogout_Click);
             // 
             // MainForm
             // 
@@ -277,6 +387,7 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.White;
             this.ClientSize = new System.Drawing.Size(1264, 761);
+            this.Controls.Add(this.panelProfile);
             this.Controls.Add(this.tabControl);
             this.Controls.Add(this.panelSide);
             this.Controls.Add(this.panelHeader);
@@ -289,6 +400,7 @@
             this.Load += new System.EventHandler(this.MainForm_Load);
             this.panelHeader.ResumeLayout(false);
             this.panelHeader.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).EndInit();
             this.panelSide.ResumeLayout(false);
             this.panelSide.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
@@ -302,7 +414,10 @@
             this.panel2.PerformLayout();
             this.panel1.ResumeLayout(false);
             this.panel1.PerformLayout();
+            this.pageSchedule.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.dataGridViewSchedule)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.fileSystemWatcher1)).EndInit();
+            this.panelProfile.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
@@ -310,7 +425,6 @@
         #endregion
 
         private System.Windows.Forms.Panel panelHeader;
-        private System.Windows.Forms.Label labelStudentInfo;
         private System.Windows.Forms.Panel panelSide;
         private System.Windows.Forms.PictureBox pictureBox1;
         private System.Windows.Forms.Label labelGazi;
@@ -329,5 +443,14 @@
         private System.IO.FileSystemWatcher fileSystemWatcher1;
         private System.Windows.Forms.Panel panel2;
         private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.FlowLayoutPanel flowLayoutPanelSelectedSections;
+        private System.Windows.Forms.Button btnSaveSelections;
+        private System.Windows.Forms.TabPage pageSchedule;
+        private System.Windows.Forms.Button btnGoToSchedule;
+        private System.Windows.Forms.DataGridView dataGridViewSchedule;
+        private System.Windows.Forms.Panel panelProfile;
+        private System.Windows.Forms.Label labelStudentInfo;
+        private System.Windows.Forms.PictureBox pictureBox2;
+        private System.Windows.Forms.Button btnLogout;
     }
 }

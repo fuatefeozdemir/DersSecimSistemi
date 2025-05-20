@@ -28,9 +28,10 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
             this.panelHeader = new System.Windows.Forms.Panel();
-            this.pictureBox2 = new System.Windows.Forms.PictureBox();
+            this.pictureBoxProfile = new System.Windows.Forms.PictureBox();
             this.labelStudentInfo = new System.Windows.Forms.Label();
             this.panelSide = new System.Windows.Forms.Panel();
             this.btnGoToSchedule = new System.Windows.Forms.Button();
@@ -43,6 +44,8 @@
             this.tabControl = new System.Windows.Forms.TabControl();
             this.pageHome = new System.Windows.Forms.TabPage();
             this.pageCourseSelection = new System.Windows.Forms.TabPage();
+            this.panel3 = new System.Windows.Forms.Panel();
+            this.label4 = new System.Windows.Forms.Label();
             this.btnSaveSelections = new System.Windows.Forms.Button();
             this.flowLayoutPanelSelectedSections = new System.Windows.Forms.FlowLayoutPanel();
             this.panel2 = new System.Windows.Forms.Panel();
@@ -58,13 +61,14 @@
             this.panelProfile = new System.Windows.Forms.Panel();
             this.btnLogout = new System.Windows.Forms.Button();
             this.panelHeader.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBoxProfile)).BeginInit();
             this.panelSide.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.panelWarning.SuspendLayout();
             this.tabControl.SuspendLayout();
             this.pageHome.SuspendLayout();
             this.pageCourseSelection.SuspendLayout();
+            this.panel3.SuspendLayout();
             this.panel2.SuspendLayout();
             this.panel1.SuspendLayout();
             this.pageSchedule.SuspendLayout();
@@ -76,23 +80,23 @@
             // panelHeader
             // 
             this.panelHeader.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(18)))), ((int)(((byte)(30)))), ((int)(((byte)(45)))));
-            this.panelHeader.Controls.Add(this.pictureBox2);
+            this.panelHeader.Controls.Add(this.pictureBoxProfile);
             this.panelHeader.Controls.Add(this.labelStudentInfo);
             this.panelHeader.Location = new System.Drawing.Point(180, 0);
             this.panelHeader.Name = "panelHeader";
             this.panelHeader.Size = new System.Drawing.Size(1084, 37);
             this.panelHeader.TabIndex = 0;
             // 
-            // pictureBox2
+            // pictureBoxProfile
             // 
-            this.pictureBox2.Image = global::DersSecimSistemi.Properties.Resources.profile_picture;
-            this.pictureBox2.Location = new System.Drawing.Point(796, 3);
-            this.pictureBox2.Name = "pictureBox2";
-            this.pictureBox2.Size = new System.Drawing.Size(32, 32);
-            this.pictureBox2.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
-            this.pictureBox2.TabIndex = 0;
-            this.pictureBox2.TabStop = false;
-            this.pictureBox2.Click += new System.EventHandler(this.pictureBox2_Click);
+            this.pictureBoxProfile.Image = global::DersSecimSistemi.Properties.Resources.profile_picture;
+            this.pictureBoxProfile.Location = new System.Drawing.Point(796, 3);
+            this.pictureBoxProfile.Name = "pictureBoxProfile";
+            this.pictureBoxProfile.Size = new System.Drawing.Size(32, 32);
+            this.pictureBoxProfile.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
+            this.pictureBoxProfile.TabIndex = 0;
+            this.pictureBoxProfile.TabStop = false;
+            this.pictureBoxProfile.Click += new System.EventHandler(this.pictureBoxProfile_Click);
             // 
             // labelStudentInfo
             // 
@@ -110,7 +114,6 @@
             // panelSide
             // 
             this.panelSide.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(18)))), ((int)(((byte)(30)))), ((int)(((byte)(45)))));
-            this.panelSide.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.panelSide.Controls.Add(this.btnGoToSchedule);
             this.panelSide.Controls.Add(this.btnGoToCourseSelection);
             this.panelSide.Controls.Add(this.btnGoToHome);
@@ -124,12 +127,13 @@
             // 
             // btnGoToSchedule
             // 
+            this.btnGoToSchedule.FlatAppearance.BorderSize = 0;
             this.btnGoToSchedule.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnGoToSchedule.Font = new System.Drawing.Font("Arial", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(162)));
+            this.btnGoToSchedule.Font = new System.Drawing.Font("Arial", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(162)));
             this.btnGoToSchedule.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(194)))), ((int)(((byte)(199)))), ((int)(((byte)(208)))));
-            this.btnGoToSchedule.Location = new System.Drawing.Point(2, 214);
+            this.btnGoToSchedule.Location = new System.Drawing.Point(-1, 213);
             this.btnGoToSchedule.Name = "btnGoToSchedule";
-            this.btnGoToSchedule.Size = new System.Drawing.Size(175, 30);
+            this.btnGoToSchedule.Size = new System.Drawing.Size(182, 35);
             this.btnGoToSchedule.TabIndex = 5;
             this.btnGoToSchedule.Text = "Ders Programı";
             this.btnGoToSchedule.UseVisualStyleBackColor = true;
@@ -137,12 +141,13 @@
             // 
             // btnGoToCourseSelection
             // 
+            this.btnGoToCourseSelection.FlatAppearance.BorderSize = 0;
             this.btnGoToCourseSelection.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnGoToCourseSelection.Font = new System.Drawing.Font("Arial", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(162)));
+            this.btnGoToCourseSelection.Font = new System.Drawing.Font("Arial", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(162)));
             this.btnGoToCourseSelection.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(194)))), ((int)(((byte)(199)))), ((int)(((byte)(208)))));
-            this.btnGoToCourseSelection.Location = new System.Drawing.Point(3, 178);
+            this.btnGoToCourseSelection.Location = new System.Drawing.Point(-1, 178);
             this.btnGoToCourseSelection.Name = "btnGoToCourseSelection";
-            this.btnGoToCourseSelection.Size = new System.Drawing.Size(175, 30);
+            this.btnGoToCourseSelection.Size = new System.Drawing.Size(182, 35);
             this.btnGoToCourseSelection.TabIndex = 4;
             this.btnGoToCourseSelection.Text = "Ders Kayıt";
             this.btnGoToCourseSelection.UseVisualStyleBackColor = true;
@@ -150,12 +155,13 @@
             // 
             // btnGoToHome
             // 
+            this.btnGoToHome.FlatAppearance.BorderSize = 0;
             this.btnGoToHome.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnGoToHome.Font = new System.Drawing.Font("Arial", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(162)));
+            this.btnGoToHome.Font = new System.Drawing.Font("Arial", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(162)));
             this.btnGoToHome.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(194)))), ((int)(((byte)(199)))), ((int)(((byte)(208)))));
-            this.btnGoToHome.Location = new System.Drawing.Point(3, 142);
+            this.btnGoToHome.Location = new System.Drawing.Point(-1, 143);
             this.btnGoToHome.Name = "btnGoToHome";
-            this.btnGoToHome.Size = new System.Drawing.Size(175, 30);
+            this.btnGoToHome.Size = new System.Drawing.Size(182, 35);
             this.btnGoToHome.TabIndex = 3;
             this.btnGoToHome.Text = "Ana Sayfa";
             this.btnGoToHome.UseVisualStyleBackColor = true;
@@ -228,6 +234,7 @@
             // pageCourseSelection
             // 
             this.pageCourseSelection.BackColor = System.Drawing.Color.White;
+            this.pageCourseSelection.Controls.Add(this.panel3);
             this.pageCourseSelection.Controls.Add(this.btnSaveSelections);
             this.pageCourseSelection.Controls.Add(this.flowLayoutPanelSelectedSections);
             this.pageCourseSelection.Controls.Add(this.panel2);
@@ -242,21 +249,42 @@
             this.pageCourseSelection.TabIndex = 1;
             this.pageCourseSelection.Text = "tabPage4";
             // 
+            // panel3
+            // 
+            this.panel3.BackColor = System.Drawing.Color.WhiteSmoke;
+            this.panel3.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.panel3.Controls.Add(this.label4);
+            this.panel3.Location = new System.Drawing.Point(0, 396);
+            this.panel3.Name = "panel3";
+            this.panel3.Size = new System.Drawing.Size(1076, 28);
+            this.panel3.TabIndex = 10;
+            // 
+            // label4
+            // 
+            this.label4.AutoSize = true;
+            this.label4.Font = new System.Drawing.Font("Arial", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(162)));
+            this.label4.Location = new System.Drawing.Point(3, 5);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(181, 16);
+            this.label4.TabIndex = 6;
+            this.label4.Text = "Onaylanması Gereken Dersler";
+            // 
             // btnSaveSelections
             // 
-            this.btnSaveSelections.Location = new System.Drawing.Point(872, 500);
+            this.btnSaveSelections.Font = new System.Drawing.Font("Arial", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(162)));
+            this.btnSaveSelections.Location = new System.Drawing.Point(938, 681);
             this.btnSaveSelections.Name = "btnSaveSelections";
-            this.btnSaveSelections.Size = new System.Drawing.Size(75, 23);
+            this.btnSaveSelections.Size = new System.Drawing.Size(118, 26);
             this.btnSaveSelections.TabIndex = 9;
-            this.btnSaveSelections.Text = "Kesinleştir";
+            this.btnSaveSelections.Text = "Seçimleri Kaydet";
             this.btnSaveSelections.UseVisualStyleBackColor = true;
             this.btnSaveSelections.Click += new System.EventHandler(this.btnSaveSelections_Click);
             // 
             // flowLayoutPanelSelectedSections
             // 
-            this.flowLayoutPanelSelectedSections.Location = new System.Drawing.Point(404, 117);
+            this.flowLayoutPanelSelectedSections.Location = new System.Drawing.Point(3, 430);
             this.flowLayoutPanelSelectedSections.Name = "flowLayoutPanelSelectedSections";
-            this.flowLayoutPanelSelectedSections.Size = new System.Drawing.Size(543, 377);
+            this.flowLayoutPanelSelectedSections.Size = new System.Drawing.Size(543, 279);
             this.flowLayoutPanelSelectedSections.TabIndex = 0;
             // 
             // panel2
@@ -264,9 +292,9 @@
             this.panel2.BackColor = System.Drawing.Color.WhiteSmoke;
             this.panel2.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.panel2.Controls.Add(this.label3);
-            this.panel2.Location = new System.Drawing.Point(3, 83);
+            this.panel2.Location = new System.Drawing.Point(0, 83);
             this.panel2.Name = "panel2";
-            this.panel2.Size = new System.Drawing.Size(1070, 28);
+            this.panel2.Size = new System.Drawing.Size(1073, 28);
             this.panel2.TabIndex = 8;
             // 
             // label3
@@ -281,9 +309,9 @@
             // 
             // flowLayoutPanelCourses
             // 
-            this.flowLayoutPanelCourses.Location = new System.Drawing.Point(10, 117);
+            this.flowLayoutPanelCourses.Location = new System.Drawing.Point(3, 117);
             this.flowLayoutPanelCourses.Name = "flowLayoutPanelCourses";
-            this.flowLayoutPanelCourses.Size = new System.Drawing.Size(356, 377);
+            this.flowLayoutPanelCourses.Size = new System.Drawing.Size(543, 273);
             this.flowLayoutPanelCourses.TabIndex = 6;
             // 
             // labelInfo
@@ -300,7 +328,7 @@
             // 
             this.label2.AutoSize = true;
             this.label2.Font = new System.Drawing.Font("Arial", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(162)));
-            this.label2.Location = new System.Drawing.Point(7, 32);
+            this.label2.Location = new System.Drawing.Point(2, 32);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(72, 48);
             this.label2.TabIndex = 6;
@@ -311,9 +339,9 @@
             this.panel1.BackColor = System.Drawing.Color.WhiteSmoke;
             this.panel1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.panel1.Controls.Add(this.label1);
-            this.panel1.Location = new System.Drawing.Point(3, 1);
+            this.panel1.Location = new System.Drawing.Point(0, 1);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(1070, 28);
+            this.panel1.Size = new System.Drawing.Size(1073, 28);
             this.panel1.TabIndex = 5;
             // 
             // label1
@@ -344,10 +372,20 @@
             this.dataGridViewSchedule.AllowUserToResizeColumns = false;
             this.dataGridViewSchedule.AllowUserToResizeRows = false;
             this.dataGridViewSchedule.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            dataGridViewCellStyle1.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle1.BackColor = System.Drawing.Color.White;
+            dataGridViewCellStyle1.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(162)));
+            dataGridViewCellStyle1.ForeColor = System.Drawing.SystemColors.ControlText;
+            dataGridViewCellStyle1.SelectionBackColor = System.Drawing.Color.White;
+            dataGridViewCellStyle1.SelectionForeColor = System.Drawing.SystemColors.ControlText;
+            dataGridViewCellStyle1.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
+            this.dataGridViewSchedule.DefaultCellStyle = dataGridViewCellStyle1;
             this.dataGridViewSchedule.Dock = System.Windows.Forms.DockStyle.Fill;
             this.dataGridViewSchedule.Location = new System.Drawing.Point(3, 3);
+            this.dataGridViewSchedule.MultiSelect = false;
             this.dataGridViewSchedule.Name = "dataGridViewSchedule";
             this.dataGridViewSchedule.ReadOnly = true;
+            this.dataGridViewSchedule.ScrollBars = System.Windows.Forms.ScrollBars.None;
             this.dataGridViewSchedule.Size = new System.Drawing.Size(1070, 709);
             this.dataGridViewSchedule.TabIndex = 6;
             // 
@@ -400,7 +438,7 @@
             this.Load += new System.EventHandler(this.MainForm_Load);
             this.panelHeader.ResumeLayout(false);
             this.panelHeader.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBoxProfile)).EndInit();
             this.panelSide.ResumeLayout(false);
             this.panelSide.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
@@ -410,6 +448,8 @@
             this.pageHome.ResumeLayout(false);
             this.pageCourseSelection.ResumeLayout(false);
             this.pageCourseSelection.PerformLayout();
+            this.panel3.ResumeLayout(false);
+            this.panel3.PerformLayout();
             this.panel2.ResumeLayout(false);
             this.panel2.PerformLayout();
             this.panel1.ResumeLayout(false);
@@ -450,7 +490,9 @@
         private System.Windows.Forms.DataGridView dataGridViewSchedule;
         private System.Windows.Forms.Panel panelProfile;
         private System.Windows.Forms.Label labelStudentInfo;
-        private System.Windows.Forms.PictureBox pictureBox2;
+        private System.Windows.Forms.PictureBox pictureBoxProfile;
         private System.Windows.Forms.Button btnLogout;
+        private System.Windows.Forms.Panel panel3;
+        private System.Windows.Forms.Label label4;
     }
 }

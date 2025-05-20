@@ -18,9 +18,10 @@ namespace DersSecimSistemi
         private string fullName;
         private int departmentID;
         private int classYear;
+
         private string curriculumName;
         private int curriculumID;
-        private List<int> selectedSectionIDs = new List<int>();
+
         private List<SelectedSection> selectedSections = new List<SelectedSection>();
         public MainForm(int studentID, string loginID, string fullName, int departmentID, int classYear)
         {
@@ -32,19 +33,343 @@ namespace DersSecimSistemi
             this.classYear = classYear;
         }
 
-
         private void MainForm_Load(object sender, EventArgs e)
         {
             tabControl.SelectedIndex = 0;
             labelStudentInfo.Text = $"{loginID} - {fullName}";
+            labelInfo.Text = $"{fullName}\n{loginID}\n{curriculumName}";
             GetCurriculum();
             CheckCourseSelectionStatus();
             LoadCourses();
             LoadSelectedSectionsFromDB();
             PopulateScheduleGridView();
-            labelInfo.Text = $"{fullName}\n{loginID}\n{curriculumName}";
         }
 
+        // -------------------------------------------------- Ana Sayfa --------------------------------------------------
+
+        //
+        // Sol paneldeki sayfa değiştirme butonları
+        //
+        private void btnGoToHome_Click(object sender, EventArgs e)
+        {
+            tabControl.SelectedIndex = 0; // Ana Sayfa
+        }
+        private void btnGoToCourseSelection_Click(object sender, EventArgs e)
+        {
+            tabControl.SelectedIndex = 1; // Ders Kayıt
+        }
+        private void btnGoToSchedule_Click(object sender, EventArgs e)
+        {
+            tabControl.SelectedIndex = 2; // Ders Programı
+        }
+
+        //
+        // Öğrencinin hangi müfredatta olduğunu bulan metot (Bilgisayar Mühendisliği 1. sınıf gibi)
+        //
+        private void GetCurriculum()
+        {
+            string connectionString = @"Server=(localdb)\MSSQLLocalDB;Database=DersSecimSistemiDB;Trusted_Connection=True;";
+            string query = @"
+    SELECT CurriculumID, CurriculumName
+    FROM Curricula 
+    WHERE DepartmentID = @DepartmentID AND ClassYear = @ClassYear";
+
+            using (SqlConnection connection = new SqlConnection(connectionString))
+            {
+                try
+                {
+                    connection.Open();
+                    SqlCommand command = new SqlCommand(query, connection);
+                    command.Parameters.AddWithValue("@DepartmentID", departmentID);
+                    command.Parameters.AddWithValue("@ClassYear", classYear);
+
+                    SqlDataReader reader = command.ExecuteReader();
+                    if (reader.Read())
+                    {
+                        curriculumID = Convert.ToInt32(reader["CurriculumID"]);
+                        curriculumName = reader["CurriculumName"].ToString();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Müfredat bilgisi alınırken hata oluştu: " + ex.Message);
+                }
+            }
+        }
+
+        //
+        // Ana sayfada öğrencinin ders seçim durumunu gösteren metot
+        //
+        private void CheckCourseSelectionStatus()
+        {
+            string connectionString = @"Server=(localdb)\MSSQLLocalDB;Database=DersSecimSistemiDB;Trusted_Connection=True;";
+            int curriculumCourseCount = 0;
+            string curriculumQuery = @"
+        SELECT COUNT(*) 
+        FROM Courses 
+        WHERE CurriculumID = (
+            SELECT CurriculumID 
+            FROM Curricula 
+            WHERE DepartmentID = @DepartmentID AND ClassYear = @ClassYear
+        )";
+
+            // Öğrencinin müfredatındaki ders sayısını bul
+            using (SqlConnection connection = new SqlConnection(connectionString))
+            {
+                try
+                {
+                    connection.Open();
+                    SqlCommand command = new SqlCommand(curriculumQuery, connection);
+                    command.Parameters.AddWithValue("@DepartmentID", departmentID);
+                    command.Parameters.AddWithValue("@ClassYear", classYear);
+
+                    curriculumCourseCount = (int)command.ExecuteScalar();
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Müfredat ders sayısı alınırken hata oluştu: " + ex.Message);
+                    return;
+                }
+            }
+
+            // Öğrencinin seçtiği ders sayısını bul
+            int selectionCount = 0;
+            string selectionQuery = "SELECT COUNT(*) FROM StudentCourseSelections WHERE StudentID = @StudentID";
+
+            using (SqlConnection connection = new SqlConnection(connectionString))
+            {
+                try
+                {
+                    connection.Open();
+                    SqlCommand command = new SqlCommand(selectionQuery, connection);
+                    command.Parameters.AddWithValue("@StudentID", studentID);
+
+                    selectionCount = (int)command.ExecuteScalar();
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Ders seçimi kontrolü yapılırken hata oluştu: " + ex.Message);
+                    return;
+                }
+            }
+
+            // Sonuca göre uyarıyı göster
+            if (curriculumCourseCount == 0)
+            {
+                labelWarning.Text = "Müfredatın boş gözüküyor.";
+                panelWarning.BackColor = Color.Gray;
+            }
+            else if (selectionCount == curriculumCourseCount)
+            {
+                labelWarning.Text = "Ders kayıtları tamamlandı.";
+                panelWarning.BackColor = ColorTranslator.FromHtml("#28A745");
+            }
+            else if (selectionCount < curriculumCourseCount)
+            {
+                int difference = curriculumCourseCount - selectionCount;
+                labelWarning.Text = $"Seçilmesi gereken {difference} dersiniz bulunmaktadır.";
+                panelWarning.BackColor = ColorTranslator.FromHtml("#F8D7DA");
+                labelWarning.ForeColor = Color.Black;
+            }
+            else
+            {
+                labelWarning.Text = "Fazla dersiniz bulunmaktadır.";
+                panelWarning.BackColor = ColorTranslator.FromHtml("#F8D7DA");
+                labelWarning.ForeColor = Color.Black;
+            }
+        }
+
+        //
+        // Profil görseline tıklandığında görünmez olan label'i görünür yaparak çıkış yap butonunu gözükür hale getirir
+        //
+        private void pictureBoxProfile_Click(object sender, EventArgs e)
+        {
+            panelProfile.Visible = !panelProfile.Visible;
+        }
+
+        //
+        // LoginForm'a dönmeyi sağlar
+        //
+        private void Logout()
+        {
+            this.DialogResult = DialogResult.OK;
+
+            this.Close();
+        }
+
+        //
+        // Çıkış Yap butonuna tıklandığında Logout metotunu çağırır
+        //
+        private void btnLogout_Click(object sender, EventArgs e)
+        {
+            Logout();
+        }
+
+        // -------------------------------------------------- Ders Kayıt --------------------------------------------------
+        
+        //
+        // Öğrencinin müfredatındaki derslerin listesini ve şube seçme butonunu getirir 
+        //
+        private void LoadCourses()
+        {
+            flowLayoutPanelCourses.Controls.Clear();
+
+            // Başlık paneli
+            Panel headerPanel = new Panel();
+            headerPanel.Width = 350;
+            headerPanel.Height = 30;
+            headerPanel.BackColor = Color.LightGray;
+
+            Font headerFont = new Font("Segoe UI", 8, FontStyle.Bold); // Başlık fontu
+
+            // Ekle başlığı
+            Label headerAdd = new Label();
+            headerAdd.Text = "Ekle";
+            headerAdd.Width = 40;
+            headerAdd.Location = new Point(5, 6);
+            headerAdd.Font = headerFont;
+
+            // Ders Kodu başlığı
+            Label headerCode = new Label();
+            headerCode.Text = "Ders Kodu";
+            headerCode.Width = 80;
+            headerCode.Location = new Point(50, 6);
+            headerCode.Font = headerFont;
+
+            // Ders Adı başlığı
+            Label headerName = new Label();
+            headerName.Text = "Ders Adı";
+            headerName.Width = 200;
+            headerName.Location = new Point(140, 6);
+            headerName.Font = headerFont;
+
+            // Ekle
+            headerPanel.Controls.Add(headerAdd);
+            headerPanel.Controls.Add(headerCode);
+            headerPanel.Controls.Add(headerName);
+            flowLayoutPanelCourses.Controls.Add(headerPanel);
+
+            Font itemFont = new Font("Segoe UI", 9, FontStyle.Regular); // Normal Font
+
+            string connectionString = @"Server=(localdb)\MSSQLLocalDB;Database=DersSecimSistemiDB;Trusted_Connection=True;";
+            string query = @"
+ SELECT CourseID, CourseName, CourseCode
+ FROM Courses
+ WHERE CurriculumID = @CurriculumID";
+
+            using (SqlConnection connection = new SqlConnection(connectionString))
+            {
+                SqlCommand command = new SqlCommand(query, connection);
+                command.Parameters.AddWithValue("@CurriculumID", curriculumID);
+                connection.Open();
+                SqlDataReader reader = command.ExecuteReader();
+
+                while (reader.Read())
+                {
+                    int courseID = reader.GetInt32(0);
+                    string courseName = reader.GetString(1);
+                    string courseCode = reader.GetString(2);
+
+                    // Panel
+                    Panel coursePanel = new Panel();
+                    coursePanel.Width = 350;
+                    coursePanel.Height = 30;
+                    coursePanel.Margin = new Padding(2);
+                    coursePanel.BackColor = Color.WhiteSmoke;
+
+                    // '+' butonu
+                    Button addButton = new Button();
+                    addButton.Text = "+";
+                    addButton.Tag = new Tuple<int, string>(courseID, courseCode);
+                    addButton.Width = 24;
+                    addButton.Height = 24;
+                    addButton.Location = new Point(5, 3);
+                    addButton.Click += CourseButton_Click;
+
+                    // Ders kodu
+                    Label codeLabel = new Label();
+                    codeLabel.Text = courseCode;
+                    codeLabel.AutoSize = true;
+                    codeLabel.Location = new Point(addButton.Right + 10, 6);
+                    codeLabel.Font = itemFont;
+
+                    // Ders adı
+                    Label nameLabel = new Label();
+                    nameLabel.Text = courseName;
+                    nameLabel.AutoSize = true;
+                    nameLabel.Location = new Point(codeLabel.Right + 20, 6);
+                    nameLabel.Font = itemFont;
+
+                    // Ekle
+                    coursePanel.Controls.Add(addButton);
+                    coursePanel.Controls.Add(codeLabel);
+                    coursePanel.Controls.Add(nameLabel);
+
+                    flowLayoutPanelCourses.Controls.Add(coursePanel);
+                }
+            }
+        }
+
+        //
+        // Ders ekleme butonuna tıklandığında şubelerin seçilmesi için SectionSelectionForm'u ekrana getirir
+        //
+        private void CourseButton_Click(object sender, EventArgs e)
+        {
+            Button clickedButton = sender as Button;
+            var tag = (Tuple<int, string>)clickedButton.Tag;
+            int courseID = tag.Item1;
+            string courseCode = tag.Item2;
+
+            var sections = GetSectionsForCourse(courseID, courseCode);
+
+            if (sections.Count == 0)
+            {
+                MessageBox.Show("Bu derse ait şube bulunamadı.");
+                return;
+            }
+
+            SectionSelectionForm form = new SectionSelectionForm(sections, studentID, courseID);
+
+            if (form.ShowDialog() == DialogResult.OK)
+            {
+                int selectedSectionID = form.SelectedSectionID;
+                var selectedSectionInfo = sections.FirstOrDefault(s => s.Item2 == selectedSectionID);
+
+                if (selectedSectionInfo != default)
+                {
+                    // Aynı dersten şube seçildi mi kontrol et
+                    var existingSectionForCourse = selectedSections.FirstOrDefault(ss => ss.CourseCode == courseCode);
+
+                    // Eğer aynı dersten şube seçildiyse sıfırla
+                    if (existingSectionForCourse != null)
+                    {
+                        selectedSections.Remove(existingSectionForCourse);
+                    }
+
+                    selectedSections.Add(new SelectedSection
+                    {
+                        CourseCode = selectedSectionInfo.Item1,
+                        CourseID = courseID,
+                        SectionID = selectedSectionInfo.Item2,
+                        InstructorName = selectedSectionInfo.Item3,
+                        Day = selectedSectionInfo.Item8,
+                        StartTime = selectedSectionInfo.Item6,
+                        EndTime = selectedSectionInfo.Item7,
+                        Classroom = selectedSectionInfo.Item5
+                    });
+
+                    RefreshSelectedSectionsPanel();
+                }
+                else
+                {
+                    MessageBox.Show("Seçilen şube bilgisi bulunamadı.");
+                }
+            }
+        }
+
+        //
+        // Öğrencinin daha önceden seçtiği şubeler varsa onların seçili şubeler listesinde gözükmesini sağlar
+        //
         private void LoadSelectedSectionsFromDB()
         {
             selectedSections.Clear();
@@ -93,7 +418,7 @@ namespace DersSecimSistemi
             headerPanel.BackColor = Color.LightGray;
             headerPanel.Margin = new Padding(0, 0, 0, 5);
 
-            Font headerFont = new Font("Segoe UI", 8, FontStyle.Bold); // Başlıklar için kalın font
+            Font headerFont = new Font("Segoe UI", 8, FontStyle.Bold); // Başlık Fontu
 
             // Sil Butonu
             Label headerDelete = new Label();
@@ -138,7 +463,7 @@ namespace DersSecimSistemi
 
             flowLayoutPanelSelectedSections.Controls.Add(headerPanel);
 
-            Font itemFont = new Font("Segoe UI", 9, FontStyle.Regular); // Şube detayları için normal font
+            Font itemFont = new Font("Segoe UI", 9, FontStyle.Regular); // Normal Font
 
             foreach (var section in selectedSections) // Her şube için bir panel oluştur
             {
@@ -194,6 +519,9 @@ namespace DersSecimSistemi
             }
         }
 
+        //
+        // Sil butonuna tıklandığında seçilen şube listeden çıkarılır
+        //
         private void BtnDelete_Click(object sender, EventArgs e)
         {
             Button btn = sender as Button;
@@ -210,421 +538,10 @@ namespace DersSecimSistemi
             }
         }
 
-        private void RemoveCourseSelectionFromDB(int studentID, int sectionID)
-        {
-            string connectionString = @"Server=(localdb)\MSSQLLocalDB;Database=DersSecimSistemiDB;Trusted_Connection=True;";
-            string query = "DELETE FROM StudentCourseSelections WHERE StudentID=@StudentID AND SectionID=@SectionID";
 
-            using (SqlConnection connection = new SqlConnection(connectionString))
-            {
-                SqlCommand command = new SqlCommand(query, connection);
-                command.Parameters.AddWithValue("@StudentID", studentID);
-                command.Parameters.AddWithValue("@SectionID", sectionID);
-                connection.Open();
-                command.ExecuteNonQuery();
-            }
-        }
-        private void GetCurriculum()
-        {
-            string connectionString = @"Server=(localdb)\MSSQLLocalDB;Database=DersSecimSistemiDB;Trusted_Connection=True;";
-            string query = @"
-    SELECT CurriculumID, CurriculumName
-    FROM Curricula 
-    WHERE DepartmentID = @DepartmentID AND ClassYear = @ClassYear";
-
-            using (SqlConnection connection = new SqlConnection(connectionString))
-            {
-                try
-                {
-                    connection.Open();
-                    SqlCommand command = new SqlCommand(query, connection);
-                    command.Parameters.AddWithValue("@DepartmentID", departmentID);
-                    command.Parameters.AddWithValue("@ClassYear", classYear);
-
-                    SqlDataReader reader = command.ExecuteReader();
-                    if (reader.Read())
-                    {
-                        curriculumID = Convert.ToInt32(reader["CurriculumID"]);
-                        curriculumName = reader["CurriculumName"].ToString();
-                    }
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show("Müfredat bilgisi alınırken hata oluştu: " + ex.Message);
-                }
-            }
-        }
-
-
-        private void CheckCourseSelectionStatus()
-        {
-            string connectionString = @"Server=(localdb)\MSSQLLocalDB;Database=DersSecimSistemiDB;Trusted_Connection=True;";
-
-            int curriculumCourseCount = 0;
-
-            // 1) Öğrencinin müfredatının ders sayısını al
-            string curriculumQuery = @"
-        SELECT COUNT(*) 
-        FROM Courses 
-        WHERE CurriculumID = (
-            SELECT CurriculumID 
-            FROM Curricula 
-            WHERE DepartmentID = @DepartmentID AND ClassYear = @ClassYear
-        )";
-
-            using (SqlConnection connection = new SqlConnection(connectionString))
-            {
-                try
-                {
-                    connection.Open();
-                    SqlCommand command = new SqlCommand(curriculumQuery, connection);
-                    command.Parameters.AddWithValue("@DepartmentID", departmentID);
-                    command.Parameters.AddWithValue("@ClassYear", classYear);
-
-                    curriculumCourseCount = (int)command.ExecuteScalar();
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show("Müfredat ders sayısı alınırken hata oluştu: " + ex.Message);
-                    return;
-                }
-            }
-
-            // 2) Öğrencinin seçtiği ders sayısını al
-            int selectionCount = 0;
-            string selectionQuery = "SELECT COUNT(*) FROM StudentCourseSelections WHERE StudentID = @StudentID";
-
-            using (SqlConnection connection = new SqlConnection(connectionString))
-            {
-                try
-                {
-                    connection.Open();
-                    SqlCommand command = new SqlCommand(selectionQuery, connection);
-                    command.Parameters.AddWithValue("@StudentID", studentID);
-
-                    selectionCount = (int)command.ExecuteScalar();
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show("Ders seçimi kontrolü yapılırken hata oluştu: " + ex.Message);
-                    return;
-                }
-            }
-
-            // Uyarıyı göster
-            if (curriculumCourseCount == 0)
-            {
-                labelWarning.Text = "Müfredatın boş gözüküyor.";
-                panelWarning.BackColor = Color.Gray;
-            }
-            else if (selectionCount == curriculumCourseCount)
-            {
-                labelWarning.Text = "Ders kayıtları tamamlandı.";
-                panelWarning.BackColor = ColorTranslator.FromHtml("#28A745");
-            }
-            else if (selectionCount < curriculumCourseCount)
-            {
-                int difference = curriculumCourseCount - selectionCount;
-                labelWarning.Text = $"Seçilmesi gereken {difference} dersiniz bulunmaktadır.";
-                panelWarning.BackColor = ColorTranslator.FromHtml("#F8D7DA");
-                labelWarning.ForeColor = Color.Black;
-            }
-            else
-            {
-                labelWarning.Text = "Fazla dersiniz bulunmaktadır.";
-                panelWarning.BackColor = ColorTranslator.FromHtml("#F8D7DA");
-                labelWarning.ForeColor = Color.Black;
-            }
-        }
-        private void btnGoToSchedule_Click(object sender, EventArgs e)
-        {
-            tabControl.SelectedIndex = 2; // Üçüncü sekme (Ders Programı)
-        }
-
-        private void btnGoToCourseSelection_Click(object sender, EventArgs e)
-        {
-            tabControl.SelectedIndex = 1; // İkinci sekme (Ders Kayıt)
-        }
-
-        private void btnGoToHome_Click(object sender, EventArgs e)
-        {
-            tabControl.SelectedIndex = 0; // Birinci sekme (Ana Sayfa)
-        }
-
-        private void PopulateScheduleGridView()
-        {
-            // DataGridView'i temizle
-            dataGridViewSchedule.Columns.Clear();
-            dataGridViewSchedule.Rows.Clear();
-            dataGridViewSchedule.DataSource = null; // Bağlı bir DataSource varsa kopar
-
-            // --- Sütunları Tanımlama ---
-            // İlk sütun saatler için (index 0), sonra Pazartesi'den Cuma'ya günler eklenir.
-            dataGridViewSchedule.Columns.Add("SaatColumn", "Saat");
-            dataGridViewSchedule.Columns.Add("PazartesiColumn", "Pazartesi");
-            dataGridViewSchedule.Columns.Add("SaliColumn", "Salı");
-            dataGridViewSchedule.Columns.Add("CarsambaColumn", "Çarşamba");
-            dataGridViewSchedule.Columns.Add("PersembeColumn", "Perşembe");
-            dataGridViewSchedule.Columns.Add("CumaColumn", "Cuma");
-            // Cumartesi ve Pazar sütunları, gönderdiğiniz metot parçasına göre eklenmedi.
-
-            // Sütun genişliklerini ayarla
-            dataGridViewSchedule.Columns["SaatColumn"].Width = 70;
-            // Gün sütunları (index 1'den 5'e kadar Pazartesi - Cuma)
-            for (int i = 1; i <= 5; i++)
-            {
-                dataGridViewSchedule.Columns[i].Width = 120;
-                dataGridViewSchedule.Columns[i].DefaultCellStyle.WrapMode = DataGridViewTriState.True; // Metin sığmazsa alt satıra geç
-            }
-
-
-            // --- Satırları (Saat Dilimleri) Tanımlama ---
-
-            // selectedSections listesindeki tüm benzersiz başlangıç saatlerini topla
-            var uniqueStartTimes = selectedSections.Select(s => s.StartTime)
-                                                    .Distinct() // Benzersiz saatleri al
-                                                    .OrderBy(time => time) // Saatleri sırala
-                                                    .ToList(); // Liste haline getir
-
-            // Eğer hiç ders seçilmemişse sadece başlık kalır.
-            if (!uniqueStartTimes.Any())
-            {
-                return;
-            }
-
-            // Her benzersiz başlangıç saati için DataGridView'e bir satır ekle
-            foreach (var time in uniqueStartTimes)
-            {
-                int rowIndex = dataGridViewSchedule.Rows.Add(); // Yeni satır ekle
-                                                                // Satırın ilk hücresine saat değerini yaz (hh:mm formatında)
-                dataGridViewSchedule.Rows[rowIndex].Cells[0].Value = time.ToString(@"hh\:mm");
-                dataGridViewSchedule.Rows[rowIndex].Height = 60; // Satır yüksekliğini ayarla
-            }
-
-            // Saat dilimi değerini kullanarak ilgili satır indeksini bulmak için yardımcı Dictionary
-            // Bu Dictionary, her bir benzersiz TimeSpani, onun DataGridView'deki satır indeksine eşler.
-            var timeRowMap = uniqueStartTimes.Select((time, index) => new { time, index })
-                                            .ToDictionary(item => item.time, item => item.index);
-
-
-            // --- Dersleri Hücrelere Yerleştirme (Basitleştirilmiş) ---
-
-            // Her benzersiz saat dilimi (DataGrivView satırı) için
-            for (int i = 0; i < uniqueStartTimes.Count; i++)
-            {
-                var currentTimeSlot = uniqueStartTimes[i]; // Şu anki satırın temsil ettiği saat
-
-                // Her seçili şube için kontrol yap
-                foreach (var section in selectedSections)
-                {
-                    // Şubenin günü için sütun indeksini al (Pazartesi=1, Salı=2, ...)
-                    int colIndex = -1;
-                    switch (section.Day)
-                    {
-                        case "Pazartesi": colIndex = 1; break;
-                        case "Salı": colIndex = 2; break;
-                        case "Çarşamba": colIndex = 3; break;
-                        case "Perşembe": colIndex = 4; break;
-                        case "Cuma": colIndex = 5; break;
-                            // Eğer Cumartesi/Pazar dersleri de olsaydı ve sütunları ekleseydik buraya eklenecekti.
-                            // case "Cumartesi": colIndex = 6; break;
-                            // case "Pazar": colIndex = 7; break;
-                    }
-
-                    // Eğer geçerli bir gün sütunu bulunduysa (Pazartesi-Cuma arası)
-                    if (colIndex != -1)
-                    {
-                        // Eğer şubenin başlangıç saati şu anki saat dilimine eşit veya ondan küçükse
-                        // VE şubenin bitiş saati şu anki saat diliminden büyükse
-                        // Bu koşul, dersin bu saat diliminin başladığı an itibarıyla devam ettiğini gösterir.
-                        // Görseldeki gibi tekrar görünmesini sağlar.
-                        if (section.StartTime <= currentTimeSlot && section.EndTime > currentTimeSlot)
-                        {
-                            // Hücreyi bul (şu anki satır ve şubenin gününe denk gelen sütun)
-                            DataGridViewCell cell = dataGridViewSchedule.Rows[i].Cells[colIndex];
-
-                            // Hücre içeriğini biçimlendir (Ders Kodu, Ders Adı, Derslik, Öğretmen)
-                            // selectedSections listesinde CourseName property'si olduğunu varsayıyoruz.
-                            string cellContent = $"{section.CourseCode}\n{section.CourseName}\n{section.Classroom}\n{section.InstructorName}";
-
-                            // Çakışma olmadığı varsayıldığı için, hücrede zaten bilgi olup olmadığını kontrol etmeye veya birleştirmeye gerek yok.
-                            // Doğrudan hücre değerini ata.
-                            cell.Value = cellContent;
-
-                            // Satır yüksekliği zaten her satır için ayarlandı ve WrapMode açık.
-                        }
-                    }
-                }
-            }
-
-            // DataGridView'in yenilenmesini sağla
-            // DataBinding kullanılmadığı için Refresh veya Update çağrılabilir.
-            dataGridViewSchedule.Refresh();
-        }
-
-        private int GetDayColumnIndex(string day)
-        {
-            switch (day)
-            {
-                case "Pazartesi": return 1;
-                case "Salı": return 2;
-                case "Çarşamba": return 3;
-                case "Perşembe": return 4;
-                case "Cuma": return 5;
-                default: return 0; // Geçersiz gün
-            }
-        }
-        private void LoadCourses()
-        {
-            flowLayoutPanelCourses.Controls.Clear();
-
-            // Başlık paneli
-            Panel headerPanel = new Panel();
-            headerPanel.Width = 350;
-            headerPanel.Height = 30;
-            headerPanel.BackColor = Color.LightGray;
-
-            // Ekle başlığı
-            Label headerAdd = new Label();
-            headerAdd.Text = "Ekle";
-            headerAdd.Width = 40;
-            headerAdd.Location = new Point(5, 6);
-            headerAdd.Font = new Font("Segoe UI", 8, FontStyle.Bold);
-
-            // Ders Kodu başlığı
-            Label headerCode = new Label();
-            headerCode.Text = "Ders Kodu";
-            headerCode.Width = 80;
-            headerCode.Location = new Point(50, 6);
-            headerCode.Font = new Font("Segoe UI", 8, FontStyle.Bold);
-
-            // Ders Adı başlığı
-            Label headerName = new Label();
-            headerName.Text = "Ders Adı";
-            headerName.Width = 200;
-            headerName.Location = new Point(140, 6);
-            headerName.Font = new Font("Segoe UI", 8, FontStyle.Bold);
-
-            // Ekle
-            headerPanel.Controls.Add(headerAdd);
-            headerPanel.Controls.Add(headerCode);
-            headerPanel.Controls.Add(headerName);
-            flowLayoutPanelCourses.Controls.Add(headerPanel);
-
-            string connectionString = @"Server=(localdb)\MSSQLLocalDB;Database=DersSecimSistemiDB;Trusted_Connection=True;";
-            string query = @"
-SELECT CourseID, CourseName, CourseCode
-FROM Courses
-WHERE CurriculumID = @CurriculumID";
-
-            using (SqlConnection connection = new SqlConnection(connectionString))
-            {
-                SqlCommand command = new SqlCommand(query, connection);
-                command.Parameters.AddWithValue("@CurriculumID", curriculumID);
-                connection.Open();
-                SqlDataReader reader = command.ExecuteReader();
-
-                while (reader.Read())
-                {
-                    int courseID = reader.GetInt32(0);
-                    string courseName = reader.GetString(1);
-                    string courseCode = reader.GetString(2);
-
-                    // Panel
-                    Panel coursePanel = new Panel();
-                    coursePanel.Width = 350;
-                    coursePanel.Height = 30;
-                    coursePanel.Margin = new Padding(2);
-                    coursePanel.BackColor = Color.Transparent;
-
-                    // '+' butonu
-                    Button addButton = new Button();
-                    addButton.Text = "+";
-                    addButton.Tag = courseID;
-                    addButton.Width = 24;
-                    addButton.Height = 24;
-                    addButton.Location = new Point(5, 3);
-                    addButton.Click += CourseButton_Click;
-                    addButton.Tag = new Tuple<int, string>(courseID, courseCode);
-
-                    // Ders kodu
-                    Label codeLabel = new Label();
-                    codeLabel.Text = courseCode;
-                    codeLabel.AutoSize = true;
-                    codeLabel.Location = new Point(addButton.Right + 10, 6);
-                    codeLabel.Font = new Font("Segoe UI", 8, FontStyle.Regular);
-
-                    // Ders adı
-                    Label nameLabel = new Label();
-                    nameLabel.Text = courseName;
-                    nameLabel.AutoSize = true;
-                    nameLabel.Location = new Point(codeLabel.Right + 20, 6);
-                    nameLabel.Font = new Font("Segoe UI", 8, FontStyle.Regular);
-
-                    // Ekle
-                    coursePanel.Controls.Add(addButton);
-                    coursePanel.Controls.Add(codeLabel);
-                    coursePanel.Controls.Add(nameLabel);
-
-                    flowLayoutPanelCourses.Controls.Add(coursePanel);
-                }
-            }
-        }
-
-        private void CourseButton_Click(object sender, EventArgs e)
-        {
-            Button clickedButton = sender as Button;
-            var tag = (Tuple<int, string>)clickedButton.Tag;
-            int courseID = tag.Item1;
-            string courseCode = tag.Item2;
-
-            var sections = GetSectionsForCourse(courseID, courseCode);
-
-            if (sections.Count == 0)
-            {
-                MessageBox.Show("Bu derse ait şube bulunamadı.");
-                return;
-            }
-
-            SectionSelectionForm form = new SectionSelectionForm(sections, studentID, courseID);
-
-            if (form.ShowDialog() == DialogResult.OK)
-            {
-                int selectedSectionID = form.SelectedSectionID;
-                var selectedSectionInfo = sections.FirstOrDefault(s => s.Item2 == selectedSectionID);
-
-                if (selectedSectionInfo != default)
-                {
-                    // Aynı dersten şube seçildi mi kontrol et
-                    var existingSectionForCourse = selectedSections.FirstOrDefault(ss => ss.CourseCode == courseCode);
-
-                    // Eğer aynı dersten şube seçildiyse sıfırla
-                    if (existingSectionForCourse != null)
-                    {
-                        selectedSections.Remove(existingSectionForCourse);
-                    }
-
-                    selectedSections.Add(new SelectedSection
-                    {
-                        CourseCode = selectedSectionInfo.Item1,
-                        CourseID = courseID,
-                        SectionID = selectedSectionInfo.Item2,
-                        InstructorName = selectedSectionInfo.Item3,
-                        Day = selectedSectionInfo.Item8,
-                        StartTime = selectedSectionInfo.Item6,
-                        EndTime = selectedSectionInfo.Item7,
-                        Classroom = selectedSectionInfo.Item5
-                    });
-
-                    RefreshSelectedSectionsPanel();
-                }
-                else
-                {
-                    MessageBox.Show("Seçilen şube bilgisi bulunamadı.");
-                }
-            }
-        }
-
+        //
+        // Seçilen şubenin değerlerini tutan değişken
+        //
         public class SelectedSection
         {
             public string CourseCode { get; set; }
@@ -638,6 +555,31 @@ WHERE CurriculumID = @CurriculumID";
             public string Classroom { get; set; }
         }
 
+        //
+        // Seçilen şubenin bulunduğu dersin id'sini getiren metot
+        //
+        private int GetCourseIdBySectionId(int sectionID)
+        {
+            string connectionString = @"Server=(localdb)\MSSQLLocalDB;Database=DersSecimSistemiDB;Trusted_Connection=True;";
+            string query = "SELECT CourseID FROM CourseSections WHERE SectionID = @SectionID";
+
+            using (SqlConnection connection = new SqlConnection(connectionString))
+            {
+                SqlCommand command = new SqlCommand(query, connection);
+                command.Parameters.AddWithValue("@SectionID", sectionID);
+                connection.Open();
+                object result = command.ExecuteScalar();
+                if (result != null)
+                {
+                    return Convert.ToInt32(result);
+                }
+            }
+            throw new Exception($"SectionID {sectionID} için CourseID bulunamadı.");
+        }
+
+        //
+        // Seçilen şubenin gerekli verilerini veri tabanından çeken metot
+        //
         private List<(string CourseCode, int SectionID, string InstructorName,int Quota, string Classroom, TimeSpan StartTime, TimeSpan EndTime, string Day)>
             GetSectionsForCourse(int courseID, string courseCode)
         {
@@ -672,6 +614,22 @@ WHERE CurriculumID = @CurriculumID";
             return sections;
         }
 
+        //
+        // Seçimleri kaydet butonuna tıklandığında eğer çakışma yoksa gerekli metotları çağırır
+        //
+        private void btnSaveSelections_Click(object sender, EventArgs e)
+        {
+            if (CheckForTimeConflicts()) // Çakışma var mı kontrol et
+            {
+                SaveAllSelectionsToDB();
+                LoadSelectedSectionsFromDB();
+                PopulateScheduleGridView();
+            }
+        }
+
+        //
+        // Seçilen şubeleri veri tabanına kaydeden metot
+        //
         private void SaveAllSelectionsToDB()
         {
             string connectionString = @"Server=(localdb)\MSSQLLocalDB;Database=DersSecimSistemiDB;Trusted_Connection=True;";
@@ -683,7 +641,7 @@ WHERE CurriculumID = @CurriculumID";
 
                 try
                 {
-                    // 1) Öğrencinin mevcut tüm ders seçimlerini veritabanından sil
+                    // Öğrencinin mevcut tüm ders seçimlerini veritabanından sil
                     string deleteAllQuery = "DELETE FROM StudentCourseSelections WHERE StudentID = @StudentID";
                     using (SqlCommand deleteAllCommand = new SqlCommand(deleteAllQuery, connection, transaction))
                     {
@@ -691,7 +649,7 @@ WHERE CurriculumID = @CurriculumID";
                         deleteAllCommand.ExecuteNonQuery();
                     }
 
-                    // 2) selectedSections listesindeki her şubeyi veritabanına ekle
+                    // selectedSections listesindeki her şubeyi veritabanına ekle
                     string insertQuery = "INSERT INTO StudentCourseSelections (StudentID, CourseID, SectionID) VALUES (@StudentID, @CourseID, @SectionID)";
                     using (SqlCommand insertCommand = new SqlCommand(insertQuery, connection, transaction))
                     {
@@ -721,6 +679,9 @@ WHERE CurriculumID = @CurriculumID";
             }
         }
 
+        //
+        // Seçilen derslerin çakışıp çakışmadığını kontrol eden metot
+        //
         private bool CheckForTimeConflicts()
         {
             for (int i = 0; i < selectedSections.Count; i++)
@@ -749,49 +710,113 @@ WHERE CurriculumID = @CurriculumID";
             return true; // Çakışma yok
         }
 
-        private int GetCourseIdBySectionId(int sectionID)
-        {
-            string connectionString = @"Server=(localdb)\MSSQLLocalDB;Database=DersSecimSistemiDB;Trusted_Connection=True;";
-            string query = "SELECT CourseID FROM CourseSections WHERE SectionID = @SectionID";
+        // -------------------------------------------------- Ders Programı --------------------------------------------------
 
-            using (SqlConnection connection = new SqlConnection(connectionString))
+        //
+        // Ders Programı sayfasındaki datagridview metotu
+        //
+        private void PopulateScheduleGridView()
+        {
+            dataGridViewSchedule.Columns.Clear();
+            dataGridViewSchedule.Rows.Clear();
+            dataGridViewSchedule.DataSource = null;
+
+            dataGridViewSchedule.Columns.Add("SaatColumn", "Saat");
+            dataGridViewSchedule.Columns.Add("PazartesiColumn", "Pazartesi");
+            dataGridViewSchedule.Columns.Add("SaliColumn", "Salı");
+            dataGridViewSchedule.Columns.Add("CarsambaColumn", "Çarşamba");
+            dataGridViewSchedule.Columns.Add("PersembeColumn", "Perşembe");
+            dataGridViewSchedule.Columns.Add("CumaColumn", "Cuma");
+
+            foreach (DataGridViewColumn column in dataGridViewSchedule.Columns)
             {
-                SqlCommand command = new SqlCommand(query, connection);
-                command.Parameters.AddWithValue("@SectionID", sectionID);
-                connection.Open();
-                object result = command.ExecuteScalar();
-                if (result != null)
+                column.SortMode = DataGridViewColumnSortMode.NotSortable;
+            }
+
+            dataGridViewSchedule.Columns["SaatColumn"].Width = 120;
+            for (int i = 1; i <= 5; i++)
+            {
+                dataGridViewSchedule.Columns[i].Width = 150;
+                dataGridViewSchedule.Columns[i].DefaultCellStyle.WrapMode = DataGridViewTriState.True;
+            }
+
+            dataGridViewSchedule.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.AllCells;
+
+            List<(TimeSpan Start, TimeSpan End)> fixedIntervals = new List<(TimeSpan, TimeSpan)>
+            {
+                (TimeSpan.Parse("08:30"), TimeSpan.Parse("09:20")),
+                (TimeSpan.Parse("09:30"), TimeSpan.Parse("10:20")),
+                (TimeSpan.Parse("10:30"), TimeSpan.Parse("11:20")),
+                (TimeSpan.Parse("11:30"), TimeSpan.Parse("12:20")),
+                (TimeSpan.Parse("13:30"), TimeSpan.Parse("14:20")),
+                (TimeSpan.Parse("14:30"), TimeSpan.Parse("15:20")),
+                (TimeSpan.Parse("15:30"), TimeSpan.Parse("16:20")),
+                (TimeSpan.Parse("16:30"), TimeSpan.Parse("17:20")),
+                (TimeSpan.Parse("17:30"), TimeSpan.Parse("18:20")),
+                (TimeSpan.Parse("18:30"), TimeSpan.Parse("19:20")),
+                (TimeSpan.Parse("19:30"), TimeSpan.Parse("20:20")),
+                (TimeSpan.Parse("20:30"), TimeSpan.Parse("21:20"))
+            };
+
+            foreach (var interval in fixedIntervals)
+            {
+                int rowIndex = dataGridViewSchedule.Rows.Add();
+                dataGridViewSchedule.Rows[rowIndex].Cells[0].Value = $"{interval.Start:hh\\:mm} - {interval.End:hh\\:mm}";
+            }
+
+            // Hücrelere dersleri yerleştirme
+            foreach (var section in selectedSections)
+            {
+                int colIndex = GetDayColumnIndex(section.Day);
+
+                if (colIndex == -1)
                 {
-                    return Convert.ToInt32(result);
+                    continue;
+                }
+
+                for (int i = 0; i < fixedIntervals.Count; i++)
+                {
+                    var currentInterval = fixedIntervals[i];
+                    int rowIndex = i;
+
+                    if (section.StartTime < currentInterval.End && section.EndTime > currentInterval.Start)
+                    {
+                        DataGridViewCell cell = dataGridViewSchedule.Rows[rowIndex].Cells[colIndex];
+                        string cellContent = $"{section.CourseCode}\n{section.CourseName}\n{section.Classroom}\n{section.InstructorName}";
+                        cell.Value = cellContent;
+                    }
                 }
             }
-            // Hata durumu, SectionID bulunamazsa
-            throw new Exception($"SectionID {sectionID} için CourseID bulunamadı.");
+
+            dataGridViewSchedule.Refresh();
         }
 
-        private void btnSaveSelections_Click(object sender, EventArgs e)
+        //
+        // Ders Programı için dersin gününü bulan metot
+        //
+        private int GetDayColumnIndex(string day)
         {
-            if (CheckForTimeConflicts()) // Çakışma var mı kontrol et
+            string normalizedDay = day?.Trim();
+
+            switch (normalizedDay)
             {
-                SaveAllSelectionsToDB();
-                LoadSelectedSectionsFromDB();
+                case "Pazartesi": return 1;
+                case "Salı":
+                case "Sali":
+                    return 2;
+                case "Çarşamba":
+                case "Carsamba":
+                case "Çarsamba":
+                case "Carşamba":
+                    return 3;
+                case "Perşembe":
+                case "Persembe":
+                    return 4;
+                case "Cuma":
+                    return 5;
+                default:
+                    return -1;
             }
-        }
-        private void pictureBox2_Click(object sender, EventArgs e)
-        {
-            panelProfile.Visible = !panelProfile.Visible;
-        }
-
-        private void Logout()
-        {
-            this.Hide();
-            LoginForm loginForm = new LoginForm();
-            loginForm.Show();
-        }
-
-        private void btnLogout_Click(object sender, EventArgs e)
-        {
-            Logout();
         }
     }
 }

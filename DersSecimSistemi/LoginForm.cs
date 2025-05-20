@@ -24,7 +24,7 @@ namespace DersSecimSistemi
             string password = txtPassword.Text;
 
             string connectionString = @"Server=(localdb)\MSSQLLocalDB;Database=DersSecimSistemiDB;Trusted_Connection=True;";
-            string query = "SELECT StudentID, FullName, DepartmentID, ClassYear FROM Students WHERE LoginID = @LoginID AND Password = @Password"; // Yeni sorgu
+            string query = "SELECT StudentID, FullName, DepartmentID, ClassYear FROM Students WHERE LoginID = @LoginID AND Password = @Password";
 
             using (SqlConnection connection = new SqlConnection(connectionString))
             {
@@ -63,6 +63,9 @@ namespace DersSecimSistemi
             }
         }
 
+        //
+        // Şifreyi göster seçeneğiyle şifrenin gizlenip gizlenmeyeceğini ayarlayan metot
+        //
         private void chkShowPassword_CheckedChanged(object sender, EventArgs e)
         {
             txtPassword.UseSystemPasswordChar = !chkShowPassword.Checked;
